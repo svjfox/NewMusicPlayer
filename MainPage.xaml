@@ -1,0 +1,188 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://schemas.microsoft.com/dotnet/2021/maui/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             mc:Ignorable="d"
+             x:Class="MusicPlayerVS.MainPage"
+             Title="Music Player">
+
+    <ContentPage.Resources>
+        <!-- Светлая тема -->
+        <ResourceDictionary x:Key="LightTheme">
+            <Color x:Key="PrimaryColor">#4A6FA5</Color>
+            <Color x:Key="SecondaryColor">#6B8CBE</Color>
+            <Color x:Key="BackgroundColor">#F5F5F5</Color>
+            <Color x:Key="TextColor">#333333</Color>
+            <Color x:Key="CardColor">#FFFFFF</Color>
+            <Color x:Key="SliderThumbColor">#4A6FA5</Color>
+            <Color x:Key="SliderTrackColor">#E0E0E0</Color>
+        </ResourceDictionary>
+
+        <!-- Темная тема -->
+        <ResourceDictionary x:Key="DarkTheme">
+            <Color x:Key="PrimaryColor">#7B9FCF</Color>
+            <Color x:Key="SecondaryColor">#5A7DBE</Color>
+            <Color x:Key="BackgroundColor">#121212</Color>
+            <Color x:Key="TextColor">#EEEEEE</Color>
+            <Color x:Key="CardColor">#1E1E1E</Color>
+            <Color x:Key="SliderThumbColor">#7B9FCF</Color>
+            <Color x:Key="SliderTrackColor">#333333</Color>
+        </ResourceDictionary>
+
+        <!-- Стили -->
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="{DynamicResource TextColor}" />
+            <Setter Property="FontFamily" Value="OpenSansRegular" />
+        </Style>
+
+        <Style TargetType="Frame">
+            <Setter Property="BackgroundColor" Value="{DynamicResource CardColor}" />
+            <Setter Property="BorderColor" Value="{DynamicResource SecondaryColor}" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="Padding" Value="15" />
+            <Setter Property="HasShadow" Value="True" />
+        </Style>
+
+        <Style TargetType="Slider">
+            <Setter Property="MinimumTrackColor" Value="{DynamicResource SecondaryColor}" />
+            <Setter Property="MaximumTrackColor" Value="{DynamicResource SliderTrackColor}" />
+            <Setter Property="ThumbColor" Value="{DynamicResource SliderThumbColor}" />
+        </Style>
+
+        <Style TargetType="ImageButton">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="HeightRequest" Value="60" />
+            <Setter Property="WidthRequest" Value="60" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Объединяем MediaElement и Grid в общий контейнер -->
+    <Grid>
+        <!-- MediaElement -->
+        <toolkit:MediaElement x:Name="MediaPlayer"
+                             ShouldShowPlaybackControls="False"
+                             ShouldLoopPlayback="False"
+                             ShouldKeepScreenOn="True"
+                             MediaEnded="MediaPlayer_MediaEnded"
+                             MediaFailed="MediaPlayer_MediaFailed"
+                             MediaOpened="MediaPlayer_MediaOpened"
+                             IsVisible="False" />
+
+        <!-- Основной контент -->
+        <Grid BackgroundColor="{DynamicResource BackgroundColor}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <!-- Заголовок и переключатель темы -->
+                <RowDefinition Height="*" />
+                <!-- Основной контент -->
+                <RowDefinition Height="Auto" />
+                <!-- Управление -->
+            </Grid.RowDefinitions>
+
+            <!-- Заголовок и переключатель темы -->
+            <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Padding="10">
+                <ImageButton x:Name="ThemeToggleButton" 
+                            Source="theme_icon.png" 
+                            Clicked="ToggleTheme_Clicked"
+                            AutomationProperties.Name="Toggle Theme" />
+            </StackLayout>
+
+            <!-- Основной контент -->
+            <Frame Grid.Row="1" Margin="20" VerticalOptions="Center">
+                <StackLayout Spacing="20">
+                    <!-- Обложка альбома -->
+                    <Frame HeightRequest="250" WidthRequest="250" 
+                           HorizontalOptions="Center" 
+                           Padding="0" 
+                           CornerRadius="125"
+                           IsClippedToBounds="True">
+                        <Image x:Name="AlbumCoverImage" 
+                               Source="music_cover.png" 
+                               Aspect="AspectFill"/>
+                    </Frame>
+
+                    <!-- Информация о треке -->
+                    <StackLayout Spacing="5">
+                        <Label x:Name="SongTitleLabel" 
+                               Text="Press Play to start" 
+                               FontSize="22" 
+                               FontAttributes="Bold" 
+                               HorizontalOptions="Center" />
+                        <Label x:Name="ArtistLabel" 
+                               Text="Unknown Artist" 
+                               FontSize="16" 
+                               HorizontalOptions="Center" 
+                               TextColor="{DynamicResource SecondaryColor}" />
+                    </StackLayout>
+
+                    <!-- Прогресс трека -->
+                    <StackLayout Spacing="5">
+                        <Slider x:Name="PositionSlider"
+                                Minimum="0"
+                                Maximum="1"
+                                Value="0"/>
+                        <StackLayout Orientation="Horizontal">
+                            <Label x:Name="CurrentTimeLabel" Text="0:00" FontSize="14" />
+                            <Label Text=" / " FontSize="14" />
+                            <Label x:Name="TotalTimeLabel" Text="0:00" FontSize="14" />
+                        </StackLayout>
+                    </StackLayout>
+
+                    <!-- Громкость -->
+                    <StackLayout Spacing="5" Orientation="Horizontal">
+                        <Image Source="volume_low.png" HeightRequest="20" />
+                        <Slider x:Name="VolumeSlider"
+                                Minimum="0" 
+                                Maximum="1"
+                                Value="0.5"
+                                HorizontalOptions="FillAndExpand" />
+                        <Image Source="volume_high.png" HeightRequest="20" />
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
+
+            <!-- Управление -->
+            <Frame Grid.Row="2" Margin="20,0,20,20" Padding="15">
+                <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="10">
+                    <!-- Кнопка повтора -->
+                    <ImageButton x:Name="RepeatButton" 
+                         Grid.Column="0" 
+                         Source="repeat_icon.png"/>
+
+                    <!-- Предыдущий трек -->
+                    <ImageButton x:Name="PrevButton" 
+                         Grid.Column="1" 
+                         Source="previous_icon.png"/>
+
+                    <!-- Play/Pause -->
+                    <Frame Grid.Column="2" 
+                   BackgroundColor="{DynamicResource PrimaryColor}"
+                   CornerRadius="35"
+                   HeightRequest="70"
+                   WidthRequest="70"
+                   Padding="0"
+                   HorizontalOptions="Center">
+                        <Grid>
+                            <ImageButton x:Name="PlayButton" 
+                                 Source="play_icon_white.png"/>
+                            <ImageButton x:Name="PauseButton" 
+                                 Source="pause_icon_white.png"
+                                 IsVisible="False" />
+                        </Grid>
+                    </Frame>
+
+                    <!-- Следующий трек -->
+                    <ImageButton x:Name="NextButton" 
+                         Grid.Column="3" 
+                         Source="next_icon.png"/>
+
+                    <!-- Кнопка избранного -->
+                    <ImageButton x:Name="FavoriteButton" 
+                         Grid.Column="4" 
+                         Source="favorite_icon.png"/>
+                </Grid>
+            </Frame>
+        </Grid>
+    </Grid>
+</ContentPage>
