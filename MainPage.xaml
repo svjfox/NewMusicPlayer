@@ -8,28 +8,7 @@
              Title="Music Player">
 
     <ContentPage.Resources>
-        <!-- Светлая тема -->
-        <ResourceDictionary x:Key="LightTheme">
-            <Color x:Key="PrimaryColor">#4A6FA5</Color>
-            <Color x:Key="SecondaryColor">#6B8CBE</Color>
-            <Color x:Key="BackgroundColor">#F5F5F5</Color>
-            <Color x:Key="TextColor">#333333</Color>
-            <Color x:Key="CardColor">#FFFFFF</Color>
-            <Color x:Key="SliderThumbColor">#4A6FA5</Color>
-            <Color x:Key="SliderTrackColor">#E0E0E0</Color>
-        </ResourceDictionary>
-
-        <!-- Темная тема -->
-        <ResourceDictionary x:Key="DarkTheme">
-            <Color x:Key="PrimaryColor">#7B9FCF</Color>
-            <Color x:Key="SecondaryColor">#5A7DBE</Color>
-            <Color x:Key="BackgroundColor">#121212</Color>
-            <Color x:Key="TextColor">#EEEEEE</Color>
-            <Color x:Key="CardColor">#1E1E1E</Color>
-            <Color x:Key="SliderThumbColor">#7B9FCF</Color>
-            <Color x:Key="SliderTrackColor">#333333</Color>
-        </ResourceDictionary>
-
+        
         <!-- Стили -->
         <Style TargetType="Label">
             <Setter Property="TextColor" Value="{DynamicResource TextColor}" />

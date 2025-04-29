@@ -233,32 +233,47 @@ namespace MusicPlayerVS
             }
         }
 
+        
+
         private void ToggleTheme_Clicked(object sender, EventArgs e)
         {
-            isDarkTheme = !isDarkTheme; // Переключаем значение
-            ApplyTheme();              // Применяем тему
+            isDarkTheme = !isDarkTheme;
+
+            if (isDarkTheme)
+                (Application.Current as App)?.ApplyDarkTheme();
+            else
+                (Application.Current as App)?.ApplyLightTheme();
         }
+
 
         private void ApplyTheme()
         {
-            Debug.WriteLine($"Applying theme: {(isDarkTheme ? "Dark" : "Light")}");
-
-            ResourceDictionary newTheme = isDarkTheme
-                ? (ResourceDictionary)Resources["DarkTheme"]
-                : (ResourceDictionary)Resources["LightTheme"];
-
-            foreach (var key in newTheme.Keys)
+            try
             {
-                if (Resources.ContainsKey(key))
+                Debug.WriteLine($"Applying theme: {(isDarkTheme ? "Dark" : "Light")}");
+
+                ResourceDictionary newTheme = isDarkTheme
+                    ? (ResourceDictionary)Resources["DarkTheme"]
+                    : (ResourceDictionary)Resources["LightTheme"];
+
+                foreach (var key in newTheme.Keys)
                 {
-                    Resources[key] = newTheme[key];
-                }
-                else
-                {
-                    Resources.Add(key, newTheme[key]);
+                    if (Resources.ContainsKey(key))
+                    {
+                        Resources[key] = newTheme[key];
+                    }
+                    else
+                    {
+                        Resources.Add(key, newTheme[key]);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error applying theme: {ex.Message}");
+            }
         }
+
 
         private void RepeatButton_Clicked(object sender, EventArgs e)
         {
