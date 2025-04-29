@@ -4,7 +4,7 @@ namespace MusicPlayerVS.Resources.Themes
     {
         public DarkTheme()
         {
-            InitializeComponent();
+            //InitializeComponent();
         }
     }
 }
