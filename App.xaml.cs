@@ -1,10 +1,4 @@
-﻿using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.Xaml;
-using System.IO;
-
-
-
-namespace MusicPlayerVS
+﻿namespace MusicPlayerVS
 {
     public partial class App : Application
     {
@@ -40,4 +34,3 @@ namespace MusicPlayerVS
         }
     }
 }
-

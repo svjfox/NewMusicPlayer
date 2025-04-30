@@ -28,7 +28,7 @@ namespace MusicPlayerVS
     public partial class MainPage : ContentPage
     {
         private bool isFirstButtonClick = true;
-        private bool isDarkTheme = false;
+        private bool isDarkTheme = true; // Переменная для отслеживания текущей темы
         private bool isRepeatEnabled = false;
         private bool isFavorite = false;
 
@@ -40,7 +40,7 @@ namespace MusicPlayerVS
         };
 
         private int currentSongIndex = 0;
-        private readonly System.Timers.Timer positionTimer = new(1000);
+        private readonly System.Timers.Timer positionTimer = new(1000); // Интервал 1 секунда
 
         public MainPage()
         {
@@ -48,7 +48,7 @@ namespace MusicPlayerVS
 
             // Устанавливаем начальную тему (например, темную)
             isDarkTheme = true; // Или false для светлой темы
-            ApplyTheme();
+            ApplyTheme(isDarkTheme);
 
             // Инициализация обработчиков событий
             PlayButton.Clicked += PlayPauseButton_Clicked;
@@ -136,7 +136,7 @@ namespace MusicPlayerVS
                 MediaPlayer.Source = MediaSource.FromResource(currentSong.FilePath);
             }
 
-            MediaPlayer.Play(); // Убрали await
+            MediaPlayer.Play();
 
             PlayButton.IsVisible = false;
             PauseButton.IsVisible = true;
@@ -246,33 +246,19 @@ namespace MusicPlayerVS
         }
 
 
-        private void ApplyTheme()
+        private void ApplyTheme(bool isDarkTheme)
         {
-            try
+            Application.Current.Resources.MergedDictionaries.Clear();
+            if (isDarkTheme)
             {
-                Debug.WriteLine($"Applying theme: {(isDarkTheme ? "Dark" : "Light")}");
-
-                ResourceDictionary newTheme = isDarkTheme
-                    ? (ResourceDictionary)Resources["DarkTheme"]
-                    : (ResourceDictionary)Resources["LightTheme"];
-
-                foreach (var key in newTheme.Keys)
-                {
-                    if (Resources.ContainsKey(key))
-                    {
-                        Resources[key] = newTheme[key];
-                    }
-                    else
-                    {
-                        Resources.Add(key, newTheme[key]);
-                    }
-                }
+                Application.Current.Resources.MergedDictionaries.Add(new MusicPlayerVS.Resources.Themes.DarkTheme());
             }
-            catch (Exception ex)
+            else
             {
-                Debug.WriteLine($"Error applying theme: {ex.Message}");
+                Application.Current.Resources.MergedDictionaries.Add(new MusicPlayerVS.Resources.Themes.LightTheme());
             }
         }
+
 
 
         private void RepeatButton_Clicked(object sender, EventArgs e)

@@ -4,7 +4,7 @@ namespace MusicPlayerVS.Resources.Themes
     {
         public LightTheme()
         {
-            //InitializeComponent();
+            InitializeComponent();
         }
     }
 }
