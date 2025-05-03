@@ -1,56 +1,64 @@
 ﻿using System;
 using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.Xaml;
 using System.Collections.Generic;
-using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Core.Primitives;
-using System.Threading.Tasks;
-using System.Linq;
-using System.IO;
 using System.Threading;
 using System.Timers;
-using System.Windows.Input;
-using System.Diagnostics;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using Microsoft.Maui;
-
+using CommunityToolkit.Maui.Core.Primitives;
 
 namespace MusicPlayerVS
 {
     public partial class MainPage : ContentPage
     {
         private bool isFirstButtonClick = true;
-        private bool isDarkTheme = true; // Переменная для отслеживания текущей темы
+        private bool isDarkTheme = true;
         private bool isRepeatEnabled = false;
         private bool isFavorite = false;
+        private SynchronizationContext syncContext;
 
         private List<Song> playlist = new List<Song>
         {
-            new Song("Ghost", "Confetti", "Ghost.mp3"),
-            new Song("No Guts No Glory", "Cyberpunk Dreams", "No Guts No Glory.mp3"),
-            new Song("Zero to Hero", "Electric Pulse", "Zero to Hero.mp3")
+            new Song("Ghost", "Confetti", "MusicPlayerVS.Resources.Audio.Ghost.mp3"),
+            new Song("No Guts No Glory", "Cyberpunk Dreams", "MusicPlayerVS.Resources.Audio.No Guts No Glory.mp3"),
+            new Song("Zero to Hero", "Electric Pulse", "MusicPlayerVS.Resources.Audio.Zero to Hero.mp3")
         };
 
         private int currentSongIndex = 0;
-        private readonly System.Timers.Timer positionTimer = new(1000); // Интервал 1 секунда
+        private System.Timers.Timer positionTimer;
 
         public MainPage()
         {
             InitializeComponent();
+            syncContext = SynchronizationContext.Current;
 
-            // Устанавливаем начальную тему (например, темную)
-            isDarkTheme = true; // Или false для светлой темы
             ApplyTheme(isDarkTheme);
+            SetupMediaPlayer();
+            InitializeTimer();
+            SetupEventHandlers();
+        }
 
-            // Инициализация обработчиков событий
+        private void SetupMediaPlayer()
+        {
+            MediaPlayer.MediaOpened += MediaPlayer_MediaOpened;
+            MediaPlayer.MediaFailed += MediaPlayer_MediaFailed;
+            MediaPlayer.MediaEnded += MediaPlayer_MediaEnded;
+
+            LoadCurrentSong();
+        }
+
+        private void InitializeTimer()
+        {
+            positionTimer = new System.Timers.Timer(1000); // не чаще 1 сек
+            positionTimer.Elapsed += (s, e) =>
+            {
+                syncContext.Post(_ => UpdatePlayerUI(), null);
+            };
+            positionTimer.Start();
+        }
+
+        private void SetupEventHandlers()
+        {
             PlayButton.Clicked += PlayPauseButton_Clicked;
             PauseButton.Clicked += PlayPauseButton_Clicked;
             PrevButton.Clicked += NextPrevButton_Clicked;
@@ -59,41 +67,46 @@ namespace MusicPlayerVS
             FavoriteButton.Clicked += FavoriteButton_Clicked;
             PositionSlider.ValueChanged += PositionSlider_ValueChanged;
             VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
-
-            InitializePlaylist();
-
-            // Настройка таймера
-            positionTimer.Elapsed += (s, e) => UpdatePlayerUI();
-            positionTimer.Start();
         }
 
-        private void InitializePlaylist()
+        private void LoadCurrentSong()
         {
-            MediaPlayer.Source = MediaSource.FromResource(playlist[currentSongIndex].FilePath);
+            var currentSong = playlist[currentSongIndex];
 
-            MediaPlayer.MediaOpened += (s, e) =>
+            try
             {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    if (MediaPlayer.Duration != null)
-                    {
-                        PositionSlider.Maximum = MediaPlayer.Duration.TotalSeconds;
-                        TotalTimeLabel.Text = FormatTime(MediaPlayer.Duration);
-                    }
-                });
-            };
+                // Исправлено: уточнение пути в embedded ресурсах
+                var mediaSource = MediaSource.FromResource(currentSong.FilePath);
+                MediaPlayer.Source = mediaSource;
+
+                SongTitleLabel.Text = currentSong.Title;
+                ArtistLabel.Text = currentSong.Artist;
+
+                PositionSlider.Value = 0;
+                CurrentTimeLabel.Text = "0:00";
+                TotalTimeLabel.Text = "0:00";
+
+                // Удалено: MediaPlayer.Speed = 0.7;
+                MediaPlayer.Speed = 1.0; // нормальная скорость
+            }
+            catch (Exception ex)
+            {
+                DisplayAlert("Ошибка", $"Ошибка при загрузке файла: {ex.Message}", "OK");
+            }
         }
 
         private void UpdatePlayerUI()
         {
-            if (MediaPlayer.CurrentState == MediaElementState.Playing)
+            if (MediaPlayer?.CurrentState == MediaElementState.Playing)
             {
-                MainThread.BeginInvokeOnMainThread(() =>
+                Device.BeginInvokeOnMainThread(() =>
                 {
-                    if (MediaPlayer.Position != null)
+                    PositionSlider.Value = MediaPlayer.Position.TotalSeconds;
+                    CurrentTimeLabel.Text = FormatTime(MediaPlayer.Position);
+
+                    if (MediaPlayer.Duration.TotalSeconds > 0)
                     {
-                        PositionSlider.Value = MediaPlayer.Position.TotalSeconds;
-                        CurrentTimeLabel.Text = FormatTime(MediaPlayer.Position);
+                        TotalTimeLabel.Text = FormatTime(MediaPlayer.Duration);
                     }
                 });
             }
@@ -104,7 +117,7 @@ namespace MusicPlayerVS
             return $"{(int)time.TotalMinutes}:{time.Seconds:00}";
         }
 
-        private async void PlayPauseButton_Clicked(object sender, EventArgs e)
+        private void PlayPauseButton_Clicked(object sender, EventArgs e)
         {
             if (isFirstButtonClick)
             {
@@ -115,25 +128,22 @@ namespace MusicPlayerVS
 
             if (MediaPlayer.CurrentState == MediaElementState.Playing)
             {
-                await PauseMusic();
+                PauseMusic();
             }
             else
             {
-                await PlayMusic();
+                PlayMusic();
             }
         }
 
-        private async Task PlayMusic()
+        private void PlayMusic()
         {
             Song currentSong = playlist[currentSongIndex];
-            SongTitleLabel.Text = currentSong.Title;
-            ArtistLabel.Text = currentSong.Artist;
-
-            ChangeLabel($"Now playing {currentSong.Title}", Colors.White);
+            ChangeLabel($"Сейчас играет {currentSong.Title}", Colors.White);
 
             if (MediaPlayer.Source == null)
             {
-                MediaPlayer.Source = MediaSource.FromResource(currentSong.FilePath);
+                LoadCurrentSong();
             }
 
             MediaPlayer.Play();
@@ -142,16 +152,16 @@ namespace MusicPlayerVS
             PauseButton.IsVisible = true;
         }
 
-        private async Task PauseMusic()
+        private void PauseMusic()
         {
-            ChangeLabel("Paused...", Colors.Orange);
-            MediaPlayer.Pause(); // Убрали await
+            ChangeLabel("Пауза...", Colors.Orange);
+            MediaPlayer.Pause();
 
             PlayButton.IsVisible = true;
             PauseButton.IsVisible = false;
         }
 
-        private async void NextPrevButton_Clicked(object sender, EventArgs e)
+        private void NextPrevButton_Clicked(object sender, EventArgs e)
         {
             bool wasPlaying = MediaPlayer.CurrentState == MediaElementState.Playing;
 
@@ -164,27 +174,12 @@ namespace MusicPlayerVS
                 currentSongIndex = (currentSongIndex + 1) % playlist.Count;
             }
 
-            await LoadAndPlayCurrentSong();
+            LoadCurrentSong();
 
-            // Если текущий трек играл, запускаем следующий/предыдущий трек
             if (wasPlaying)
             {
                 MediaPlayer.Play();
             }
-        }
-
-        private async Task LoadAndPlayCurrentSong()
-        {
-            Song currentSong = playlist[currentSongIndex];
-            MediaPlayer.Source = MediaSource.FromResource(currentSong.FilePath);
-
-            SongTitleLabel.Text = currentSong.Title;
-            ArtistLabel.Text = currentSong.Artist;
-
-            ChangeLabel($"Now playing {currentSong.Title}", Colors.LightSkyBlue);
-
-            PrevButton.IsEnabled = currentSongIndex != 0;
-            NextButton.IsEnabled = currentSongIndex != playlist.Count - 1;
         }
 
         private void ChangeLabel(string text, Color textColor)
@@ -193,29 +188,41 @@ namespace MusicPlayerVS
             SongTitleLabel.TextColor = textColor;
         }
 
-        private async void MediaPlayer_MediaFailed(object sender, MediaFailedEventArgs e)
+        private void MediaPlayer_MediaFailed(object sender, MediaFailedEventArgs e)
         {
-            await DisplayAlert("Error", $"Failed to play {playlist[currentSongIndex].Title}: {e.ErrorMessage}", "OK");
-            currentSongIndex = (currentSongIndex + 1) % playlist.Count;
-            await LoadAndPlayCurrentSong();
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                await DisplayAlert("Ошибка", $"Не удалось воспроизвести {playlist[currentSongIndex].Title}: {e.ErrorMessage}", "OK");
+                currentSongIndex = (currentSongIndex + 1) % playlist.Count;
+                LoadCurrentSong();
+            });
         }
 
-        private async void MediaPlayer_MediaEnded(object sender, EventArgs e)
+        private void MediaPlayer_MediaEnded(object sender, EventArgs e)
         {
-            // Если режим повтора включен, воспроизводим текущий трек
             if (isRepeatEnabled)
             {
-                await LoadAndPlayCurrentSong();
+                MediaPlayer.SeekTo(TimeSpan.Zero);
+                MediaPlayer.Play();
             }
             else
             {
-                // Переходим к следующему треку
                 currentSongIndex = (currentSongIndex + 1) % playlist.Count;
-                await LoadAndPlayCurrentSong();
+                LoadCurrentSong();
+                MediaPlayer.Play();
             }
+        }
 
-            // Запускаем воспроизведение
-            MediaPlayer.Play();
+        private void MediaPlayer_MediaOpened(object sender, EventArgs e)
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                if (MediaPlayer.Duration.TotalSeconds > 0)
+                {
+                    PositionSlider.Maximum = MediaPlayer.Duration.TotalSeconds;
+                    TotalTimeLabel.Text = FormatTime(MediaPlayer.Duration);
+                }
+            });
         }
 
         private void VolumeSlider_ValueChanged(object sender, ValueChangedEventArgs e)
@@ -225,26 +232,18 @@ namespace MusicPlayerVS
 
         private void PositionSlider_ValueChanged(object sender, ValueChangedEventArgs e)
         {
-            if (Math.Abs(e.NewValue - MediaPlayer.Position.TotalSeconds) > 1 &&
-                (MediaPlayer.CurrentState == MediaElementState.Playing ||
-                 MediaPlayer.CurrentState == MediaElementState.Paused))
+            if (MediaPlayer?.CurrentState != null &&
+                Math.Abs(e.NewValue - MediaPlayer.Position.TotalSeconds) > 1)
             {
                 MediaPlayer.SeekTo(TimeSpan.FromSeconds(e.NewValue));
             }
         }
 
-        
-
         private void ToggleTheme_Clicked(object sender, EventArgs e)
         {
             isDarkTheme = !isDarkTheme;
-
-            if (isDarkTheme)
-                (Application.Current as App)?.ApplyDarkTheme();
-            else
-                (Application.Current as App)?.ApplyLightTheme();
+            ApplyTheme(isDarkTheme);
         }
-
 
         private void ApplyTheme(bool isDarkTheme)
         {
@@ -259,8 +258,6 @@ namespace MusicPlayerVS
             }
         }
 
-
-
         private void RepeatButton_Clicked(object sender, EventArgs e)
         {
             isRepeatEnabled = !isRepeatEnabled;
@@ -272,16 +269,13 @@ namespace MusicPlayerVS
             isFavorite = !isFavorite;
             ((ImageButton)sender).Source = isFavorite ? "favorite_on_icon.png" : "favorite_icon.png";
         }
-        private void MediaPlayer_MediaOpened(object sender, EventArgs e)
+
+        protected override void OnDisappearing()
         {
-            if (MediaPlayer.Duration != null)
-            {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    PositionSlider.Maximum = MediaPlayer.Duration.TotalSeconds;
-                    TotalTimeLabel.Text = FormatTime(MediaPlayer.Duration);
-                });
-            }
+            base.OnDisappearing();
+            positionTimer?.Stop();
+            positionTimer?.Dispose();
+            MediaPlayer.Handler?.DisconnectHandler();
         }
     }
 
