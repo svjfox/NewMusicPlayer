@@ -16,7 +16,7 @@
             // Устанавливаем тему по умолчанию
             ApplyLightTheme();
 
-            MainPage = new MainPage();
+            MainPage = new NavigationPage(new MainPage());
         }
 
         public void ApplyLightTheme()

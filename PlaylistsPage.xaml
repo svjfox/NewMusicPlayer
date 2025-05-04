@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MusicPlayerVS.PlaylistsPage"
+             Title="Playlists">
+
+    <ContentPage.Resources>
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="{DynamicResource TextColor}" />
+            <Setter Property="FontFamily" Value="OpenSansRegular" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid>
+        <CollectionView x:Name="PlaylistsCollectionView"
+                        SelectionMode="Single"
+                        SelectionChanged="PlaylistSelected">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="15" CornerRadius="10" 
+                           BackgroundColor="{DynamicResource CardColor}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                            <Image Source="{Binding CoverImage}" 
+                                   HeightRequest="60" WidthRequest="60"
+                                   Aspect="AspectFill"/>
+
+                            <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold"/>
+                                <Label Text="{Binding Songs.Count, StringFormat='{0} songs'}" 
+                                       FontSize="14" TextColor="{DynamicResource SecondaryColor}"/>
+                            </StackLayout>
+
+                            <ImageButton Grid.Column="2" Source="chevron_right.png"
+                                        BackgroundColor="Transparent"
+                                        HeightRequest="30" WidthRequest="30"
+                                        Clicked="PlaylistOptionsClicked"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Кнопка добавления нового плейлиста -->
+        <Button x:Name="AddPlaylistButton" 
+                Text="Add Playlist" 
+                CornerRadius="20"
+                BackgroundColor="{DynamicResource PrimaryColor}"
+                TextColor="White"
+                WidthRequest="150"
+                HeightRequest="50"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="20"
+                Clicked="AddPlaylistClicked"/>
+    </Grid>
+</ContentPage>

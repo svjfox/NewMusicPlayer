@@ -2,6 +2,7 @@
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:themes="clr-namespace:MusicPlayerVS.Resources.Themes"
+             xmlns:converters="clr-namespace:MusicPlayerVS"
              x:Class="MusicPlayerVS.App">
     <Application.Resources>
         <ResourceDictionary>
@@ -11,6 +12,9 @@
                 <ResourceDictionary x:Name="LightTheme" Source="Resources/Themes/LightTheme.xaml" />
                 <ResourceDictionary x:Name="DarkTheme" Source="Resources/Themes/DarkTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Перемещаем FavoriteIconConverter сюда -->
+            <converters:FavoriteIconConverter x:Key="FavoriteIconConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

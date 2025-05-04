@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MusicPlayerVS.PlaylistDetailPage"
+             Title="{Binding Name}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Edit" Clicked="EditPlaylistClicked"/>
+    </ContentPage.ToolbarItems>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок плейлиста -->
+        <Frame Grid.Row="0" Margin="20" Padding="15" CornerRadius="10" 
+               BackgroundColor="{DynamicResource CardColor}">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                <Image Source="{Binding CoverImage}" 
+                       HeightRequest="100" WidthRequest="100"
+                       Aspect="AspectFill"/>
+
+                <StackLayout Grid.Column="1" VerticalOptions="Center">
+                    <Label Text="{Binding Name}" FontSize="24" FontAttributes="Bold"/>
+                    <Label Text="{Binding Songs.Count, StringFormat='{0} songs'}" 
+                           FontSize="16" TextColor="{DynamicResource SecondaryColor}"/>
+                </StackLayout>
+            </Grid>
+        </Frame>
+
+        <!-- Список песен -->
+        <CollectionView Grid.Row="1" x:Name="SongsCollectionView"
+                        SelectionMode="Single"
+                        SelectionChanged="SongSelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="10" CornerRadius="8" 
+                           BackgroundColor="{DynamicResource CardColor}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <Image Source="{Binding CoverImage}" 
+                                   HeightRequest="50" WidthRequest="50"
+                                   Aspect="AspectFill"/>
+
+                            <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold"/>
+                                <Label Text="{Binding Artist}" FontSize="14" 
+                                       TextColor="{DynamicResource SecondaryColor}"/>
+                            </StackLayout>
+
+                            <ImageButton Grid.Column="2" Source="{Binding IsFavorite, Converter={StaticResource FavoriteIconConverter}}"
+                                        BackgroundColor="Transparent"
+                                        HeightRequest="30" WidthRequest="30"
+                                        Clicked="ToggleFavoriteClicked"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Кнопка воспроизведения -->
+        <Button x:Name="PlayButton" 
+                Text="Play All" 
+                CornerRadius="20"
+                BackgroundColor="{DynamicResource PrimaryColor}"
+                TextColor="White"
+                HorizontalOptions="Fill"
+                VerticalOptions="End"
+                Margin="20"
+                Clicked="PlayAllClicked"/>
+    </Grid>
+</ContentPage>

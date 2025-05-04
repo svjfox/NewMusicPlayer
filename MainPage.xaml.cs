@@ -21,16 +21,18 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui;
-
+using MusicPlayerVS.Models;
 
 namespace MusicPlayerVS
 {
     public partial class MainPage : ContentPage
     {
         private bool isFirstButtonClick = true;
-        private bool isDarkTheme = true; // Переменная для отслеживания текущей темы
+        private bool isDarkTheme = true;
         private bool isRepeatEnabled = false;
         private bool isFavorite = false;
+        private ObservableCollection<Playlist> _playlists = new ObservableCollection<Playlist>();
+        private Playlist _currentPlaylist;
 
         private List<Song> playlist = new List<Song>
         {
@@ -40,14 +42,14 @@ namespace MusicPlayerVS
         };
 
         private int currentSongIndex = 0;
-        private readonly System.Timers.Timer positionTimer = new(1000); // Интервал 1 секунда
+        private readonly System.Timers.Timer positionTimer = new(1000);
 
         public MainPage()
         {
             InitializeComponent();
 
-            // Устанавливаем начальную тему (например, темную)
-            isDarkTheme = true; // Или false для светлой темы
+            // Устанавливаем начальную тему
+            isDarkTheme = true;
             ApplyTheme(isDarkTheme);
 
             // Инициализация обработчиков событий
@@ -59,6 +61,7 @@ namespace MusicPlayerVS
             FavoriteButton.Clicked += FavoriteButton_Clicked;
             PositionSlider.ValueChanged += PositionSlider_ValueChanged;
             VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
+            PlaylistsButton.Clicked += OpenPlaylists_Clicked;
 
             InitializePlaylist();
 
@@ -83,6 +86,59 @@ namespace MusicPlayerVS
                 });
             };
         }
+
+        #region Playlist Management Methods
+
+        private async void OpenPlaylists_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new PlaylistsPage());
+        }
+
+        public void PlayPlaylist(Playlist playlist)
+        {
+            _currentPlaylist = playlist;
+            this.playlist.Clear(); // Очищаем текущий плейлист
+
+            // Добавляем песни из выбранного плейлиста
+            foreach (var song in playlist.Songs)
+            {
+                this.playlist.Add(new Song(song.Title, song.Artist, song.FilePath)
+                {
+                    CoverImage = song.CoverImage,
+                    IsFavorite = song.IsFavorite
+                });
+            }
+
+            currentSongIndex = 0;
+            PlayMusic().ConfigureAwait(false);
+        }
+
+        public void PlaySong(Song song)
+        {
+            var index = _currentPlaylist?.Songs.IndexOf(song) ?? -1;
+            if (index >= 0)
+            {
+                currentSongIndex = index;
+                PlayMusic().ConfigureAwait(false);
+            }
+            else
+            {
+                // Если песня не в текущем плейлисте, создаем временный плейлист
+                playlist.Clear();
+                playlist.Add(new Song(song.Title, song.Artist, song.FilePath)
+                {
+                    CoverImage = song.CoverImage,
+                    IsFavorite = song.IsFavorite
+                });
+
+                currentSongIndex = 0;
+                PlayMusic().ConfigureAwait(false);
+            }
+        }
+
+        #endregion
+
+        #region Player Control Methods
 
         private void UpdatePlayerUI()
         {
@@ -128,6 +184,7 @@ namespace MusicPlayerVS
             Song currentSong = playlist[currentSongIndex];
             SongTitleLabel.Text = currentSong.Title;
             ArtistLabel.Text = currentSong.Artist;
+            AlbumCoverImage.Source = currentSong.CoverImage;
 
             ChangeLabel($"Now playing {currentSong.Title}", Colors.White);
 
@@ -145,7 +202,7 @@ namespace MusicPlayerVS
         private async Task PauseMusic()
         {
             ChangeLabel("Paused...", Colors.Orange);
-            MediaPlayer.Pause(); // Убрали await
+            MediaPlayer.Pause();
 
             PlayButton.IsVisible = true;
             PauseButton.IsVisible = false;
@@ -166,7 +223,6 @@ namespace MusicPlayerVS
 
             await LoadAndPlayCurrentSong();
 
-            // Если текущий трек играл, запускаем следующий/предыдущий трек
             if (wasPlaying)
             {
                 MediaPlayer.Play();
@@ -180,6 +236,7 @@ namespace MusicPlayerVS
 
             SongTitleLabel.Text = currentSong.Title;
             ArtistLabel.Text = currentSong.Artist;
+            AlbumCoverImage.Source = currentSong.CoverImage;
 
             ChangeLabel($"Now playing {currentSong.Title}", Colors.LightSkyBlue);
 
@@ -193,6 +250,10 @@ namespace MusicPlayerVS
             SongTitleLabel.TextColor = textColor;
         }
 
+        #endregion
+
+        #region Event Handlers
+
         private async void MediaPlayer_MediaFailed(object sender, MediaFailedEventArgs e)
         {
             await DisplayAlert("Error", $"Failed to play {playlist[currentSongIndex].Title}: {e.ErrorMessage}", "OK");
@@ -202,19 +263,16 @@ namespace MusicPlayerVS
 
         private async void MediaPlayer_MediaEnded(object sender, EventArgs e)
         {
-            // Если режим повтора включен, воспроизводим текущий трек
             if (isRepeatEnabled)
             {
                 await LoadAndPlayCurrentSong();
             }
             else
             {
-                // Переходим к следующему треку
                 currentSongIndex = (currentSongIndex + 1) % playlist.Count;
                 await LoadAndPlayCurrentSong();
             }
 
-            // Запускаем воспроизведение
             MediaPlayer.Play();
         }
 
@@ -233,8 +291,6 @@ namespace MusicPlayerVS
             }
         }
 
-        
-
         private void ToggleTheme_Clicked(object sender, EventArgs e)
         {
             isDarkTheme = !isDarkTheme;
@@ -244,7 +300,6 @@ namespace MusicPlayerVS
             else
                 (Application.Current as App)?.ApplyLightTheme();
         }
-
 
         private void ApplyTheme(bool isDarkTheme)
         {
@@ -259,8 +314,6 @@ namespace MusicPlayerVS
             }
         }
 
-
-
         private void RepeatButton_Clicked(object sender, EventArgs e)
         {
             isRepeatEnabled = !isRepeatEnabled;
@@ -271,7 +324,19 @@ namespace MusicPlayerVS
         {
             isFavorite = !isFavorite;
             ((ImageButton)sender).Source = isFavorite ? "favorite_on_icon.png" : "favorite_icon.png";
+
+            // Обновляем статус песни в текущем плейлисте
+            if (_currentPlaylist != null && currentSongIndex < playlist.Count)
+            {
+                var currentSong = playlist[currentSongIndex];
+                var songInPlaylist = _currentPlaylist.Songs.FirstOrDefault(s => s.FilePath == currentSong.FilePath);
+                if (songInPlaylist != null)
+                {
+                    songInPlaylist.IsFavorite = isFavorite;
+                }
+            }
         }
+
         private void MediaPlayer_MediaOpened(object sender, EventArgs e)
         {
             if (MediaPlayer.Duration != null)
@@ -283,6 +348,8 @@ namespace MusicPlayerVS
                 });
             }
         }
+
+        #endregion
     }
 
     public class Song
@@ -290,6 +357,10 @@ namespace MusicPlayerVS
         public string Title { get; set; }
         public string Artist { get; set; }
         public string FilePath { get; set; }
+        public string CoverImage { get; set; } = "music_cover.png";
+        public TimeSpan Duration { get; set; }
+        public bool IsFavorite { get; set; }
+        public bool IsSelected { get; set; }
 
         public Song(string title, string artist, string filePath)
         {

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MusicPlayerVS.AddSongsToPlaylistPage"
+             
+             Title="Add Songs">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Поиск -->
+        <SearchBar Grid.Row="0" Placeholder="Search songs..."
+                   TextChanged="OnSearchTextChanged"/>
+
+        <!-- Список всех песен -->
+        <CollectionView Grid.Row="1" x:Name="AllSongsCollectionView"
+                        SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="10" CornerRadius="8" 
+                           BackgroundColor="{DynamicResource CardColor}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <Image Source="{Binding CoverImage}" 
+                                   HeightRequest="50" WidthRequest="50"
+                                   Aspect="AspectFill"/>
+
+                            <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold"/>
+                                <Label Text="{Binding Artist}" FontSize="14" 
+                                       TextColor="{DynamicResource SecondaryColor}"/>
+                            </StackLayout>
+
+                            <CheckBox Grid.Column="2" VerticalOptions="Center"
+                                     IsChecked="{Binding IsSelected}"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Кнопка сохранения -->
+        <Button Grid.Row="2" Text="Save" 
+                CornerRadius="20"
+                BackgroundColor="{DynamicResource PrimaryColor}"
+                TextColor="White"
+                Margin="20"
+                Clicked="SaveClicked"/>
+    </Grid>
+</ContentPage>

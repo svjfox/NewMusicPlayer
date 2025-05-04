@@ -10,7 +10,8 @@ namespace MusicPlayerVS
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
-                .UseMauiCommunityToolkitMediaElement()
+                .UseMauiCommunityToolkit() // Добавляем этот вызов
+                .UseMauiCommunityToolkitMediaElement() // Оставляем, если используется MediaElement
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
