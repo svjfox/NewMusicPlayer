@@ -32,7 +32,11 @@ namespace MusicPlayerVS
         private bool isRepeatEnabled = false;
         private bool isFavorite = false;
         private ObservableCollection<Playlist> _playlists = new ObservableCollection<Playlist>();
-        private Playlist _currentPlaylist;
+        private Playlist _currentPlaylist
+        {
+            get => MusicDataService.CurrentPlaylist;
+            set => MusicDataService.CurrentPlaylist = value;
+        }
 
         private List<Song> playlist = new List<Song>
         {

@@ -23,13 +23,26 @@ namespace MusicPlayerVS
         {
             _allSongs.Clear();
 
+            // Загружаем все песни
             _allSongs.Add(new Song("Ghost", "Confetti", "Ghost.mp3"));
             _allSongs.Add(new Song("No Guts No Glory", "Cyberpunk Dreams", "No Guts No Glory.mp3"));
             _allSongs.Add(new Song("Zero to Hero", "Electric Pulse", "Zero to Hero.mp3"));
 
+            // Помечаем выбранные песни
             foreach (var song in _allSongs)
             {
                 song.IsSelected = _playlist.Songs.Any(s => s.FilePath == song.FilePath);
+            }
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            // Сохраняем изменения при закрытии страницы
+            _playlist.Songs.Clear();
+            foreach (var song in _allSongs.Where(s => s.IsSelected))
+            {
+                _playlist.Songs.Add(song);
             }
         }
 

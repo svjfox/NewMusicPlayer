@@ -16,6 +16,9 @@ namespace MusicPlayerVS
             InitializeComponent();
             BindingContext = this;
             LoadSamplePlaylists();
+            PlaylistsCollectionView.ItemsSource = MusicDataService.Playlists;
+
+
         }
 
         private void LoadSamplePlaylists()
