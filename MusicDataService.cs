@@ -23,18 +23,7 @@ namespace MusicPlayerVS
                 }
             };
 
-            var workout = new Playlist
-            {
-                Name = "Workout",
-                CoverImage = "workout_cover.png",
-                Songs =
-                {
-                    new Song("Zero to Hero", "Electric Pulse", "Zero to Hero.mp3")
-                }
-            };
-
             Playlists.Add(favorites);
-            Playlists.Add(workout);
         }
     }
 }

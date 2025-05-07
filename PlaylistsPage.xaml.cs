@@ -2,7 +2,6 @@ using MusicPlayerVS.Models;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
 using Microsoft.Maui.Controls;
 
 namespace MusicPlayerVS
@@ -18,22 +17,11 @@ namespace MusicPlayerVS
             PlaylistsCollectionView.ItemsSource = Playlists;
         }
 
-        private void LoadSamplePlaylists()
-        {
-            // Пример плейлистов
-            var favorites = new Playlist { Name = "Favorites", CoverImage = "favorites_cover.png" };
-            var workout = new Playlist { Name = "Workout", CoverImage = "workout_cover.png" };
-
-            Playlists.Add(favorites);
-            Playlists.Add(workout);
-
-            PlaylistsCollectionView.ItemsSource = Playlists;
-        }
-
         private async void PlaylistSelected(object sender, SelectionChangedEventArgs e)
         {
             if (e.CurrentSelection.FirstOrDefault() is Playlist selectedPlaylist)
             {
+                // Переход на страницу с детальной информацией о выбранном плейлисте
                 await Navigation.PushAsync(new PlaylistDetailPage(selectedPlaylist));
                 ((CollectionView)sender).SelectedItem = null;
             }
@@ -45,7 +33,11 @@ namespace MusicPlayerVS
 
             if (!string.IsNullOrWhiteSpace(result))
             {
-                Playlists.Add(new Playlist { Name = result });
+                // Создание нового плейлиста
+                var newPlaylist = new Playlist { Name = result };
+                Playlists.Add(newPlaylist);
+
+                // Показать уведомление
                 var toast = Toast.Make($"Playlist '{result}' created", CommunityToolkit.Maui.Core.ToastDuration.Short);
                 await toast.Show();
             }
@@ -77,6 +69,7 @@ namespace MusicPlayerVS
             }
             else if (action == "Add Songs")
             {
+                // Переход на страницу добавления песен
                 await Navigation.PushAsync(new AddSongsToPlaylistPage(playlist));
             }
         }
