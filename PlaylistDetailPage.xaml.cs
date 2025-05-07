@@ -58,5 +58,6 @@ namespace MusicPlayerVS
                 mainPage.PlayCurrentSongFromPlaylist(); // Воспроизведение всех песен
             }
         }
+
     }
 }

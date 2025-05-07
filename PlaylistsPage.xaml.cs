@@ -14,16 +14,16 @@ namespace MusicPlayerVS
         {
             InitializeComponent();
             BindingContext = this;
-            PlaylistsCollectionView.ItemsSource = Playlists;
+            PlaylistsListView.ItemsSource = Playlists; // Привязываем ListView к коллекции
         }
 
-        private async void PlaylistSelected(object sender, SelectionChangedEventArgs e)
+        private async void PlaylistSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (e.CurrentSelection.FirstOrDefault() is Playlist selectedPlaylist)
+            if (e.SelectedItem is Playlist selectedPlaylist)
             {
-                // Переход на страницу с детальной информацией о выбранном плейлисте
+                // Переход на страницу с детальной информацией о плейлисте
                 await Navigation.PushAsync(new PlaylistDetailPage(selectedPlaylist));
-                ((CollectionView)sender).SelectedItem = null;
+                PlaylistsListView.SelectedItem = null; // Сбрасываем выделение
             }
         }
 
@@ -33,11 +33,9 @@ namespace MusicPlayerVS
 
             if (!string.IsNullOrWhiteSpace(result))
             {
-                // Создание нового плейлиста
                 var newPlaylist = new Playlist { Name = result };
                 Playlists.Add(newPlaylist);
 
-                // Показать уведомление
                 var toast = Toast.Make($"Playlist '{result}' created", CommunityToolkit.Maui.Core.ToastDuration.Short);
                 await toast.Show();
             }
@@ -69,7 +67,6 @@ namespace MusicPlayerVS
             }
             else if (action == "Add Songs")
             {
-                // Переход на страницу добавления песен
                 await Navigation.PushAsync(new AddSongsToPlaylistPage(playlist));
             }
         }

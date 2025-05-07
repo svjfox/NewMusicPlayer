@@ -12,37 +12,39 @@
     </ContentPage.Resources>
 
     <Grid>
-        <CollectionView x:Name="PlaylistsCollectionView"
-                        SelectionMode="Single"
-                        SelectionChanged="PlaylistSelected">
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
-            </CollectionView.ItemsLayout>
+        <!-- ListView вместо CollectionView -->
+        <ListView x:Name="PlaylistsListView"
+                  ItemsSource="{Binding Playlists}"
+                  ItemSelected="PlaylistSelected"
+                  HasUnevenRows="True"
+                  SeparatorVisibility="None">
 
-            <CollectionView.ItemTemplate>
+            <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Padding="15" CornerRadius="10" 
-                           BackgroundColor="{DynamicResource CardColor}">
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
-                            <Image Source="{Binding CoverImage}" 
-                                   HeightRequest="60" WidthRequest="60"
-                                   Aspect="AspectFill"/>
+                    <ViewCell>
+                        <Frame Padding="15" CornerRadius="10" 
+                               BackgroundColor="{DynamicResource CardColor}">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                                <Image Source="{Binding CoverImage}" 
+                                       HeightRequest="60" WidthRequest="60"
+                                       Aspect="AspectFill"/>
 
-                            <StackLayout Grid.Column="1" VerticalOptions="Center">
-                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold"/>
-                                <Label Text="{Binding Songs.Count, StringFormat='{0} songs'}" 
-                                       FontSize="14" TextColor="{DynamicResource SecondaryColor}"/>
-                            </StackLayout>
+                                <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Songs.Count, StringFormat='{0} songs'}" 
+                                           FontSize="14" TextColor="{DynamicResource SecondaryColor}"/>
+                                </StackLayout>
 
-                            <ImageButton Grid.Column="2" Source="chevron_right.png"
-                                        BackgroundColor="Transparent"
-                                        HeightRequest="30" WidthRequest="30"
-                                        Clicked="PlaylistOptionsClicked"/>
-                        </Grid>
-                    </Frame>
+                                <ImageButton Grid.Column="2" Source="chevron_right.png"
+                                            BackgroundColor="Transparent"
+                                            HeightRequest="30" WidthRequest="30"
+                                            Clicked="PlaylistOptionsClicked"/>
+                            </Grid>
+                        </Frame>
+                    </ViewCell>
                 </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+            </ListView.ItemTemplate>
+        </ListView>
 
         <!-- Кнопка добавления нового плейлиста -->
         <Button x:Name="AddPlaylistButton" 

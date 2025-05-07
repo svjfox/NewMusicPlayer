@@ -5,6 +5,17 @@
              Title="{Binding Name}">
 
     <Grid>
+        <!-- Кнопка для воспроизведения всех песен -->
+        <Button Text="Play All"
+                BackgroundColor="{DynamicResource PrimaryColor}"
+                TextColor="White"
+                CornerRadius="20"
+                HeightRequest="50"
+                HorizontalOptions="Center"
+                VerticalOptions="Start"
+                Margin="10"
+                Clicked="PlayAllClicked"/>
+
         <CollectionView x:Name="SongsCollectionView"
                         SelectionMode="Single"
                         SelectionChanged="SongSelected">
@@ -27,10 +38,6 @@
                                         HeightRequest="30" WidthRequest="30"
                                         CommandParameter="{Binding .}"
                                         Clicked="PlaySongClicked"/>
-                            <Button Text="Play All" 
-                                    Clicked="PlayAllClicked"
-                                    HorizontalOptions="Center"
-                                    Margin="0,10"/>
                         </Grid>
                     </Frame>
                 </DataTemplate>
