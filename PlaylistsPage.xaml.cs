@@ -9,16 +9,13 @@ namespace MusicPlayerVS
 {
     public partial class PlaylistsPage : ContentPage
     {
-        public ObservableCollection<Playlist> Playlists { get; set; } = new ObservableCollection<Playlist>();
+        public ObservableCollection<Playlist> Playlists => MusicDataService.Playlists;
 
         public PlaylistsPage()
         {
             InitializeComponent();
             BindingContext = this;
-            LoadSamplePlaylists();
-            PlaylistsCollectionView.ItemsSource = MusicDataService.Playlists;
-
-
+            PlaylistsCollectionView.ItemsSource = Playlists;
         }
 
         private void LoadSamplePlaylists()
@@ -38,9 +35,8 @@ namespace MusicPlayerVS
             if (e.CurrentSelection.FirstOrDefault() is Playlist selectedPlaylist)
             {
                 await Navigation.PushAsync(new PlaylistDetailPage(selectedPlaylist));
+                ((CollectionView)sender).SelectedItem = null;
             }
-
-            ((CollectionView)sender).SelectedItem = null;
         }
 
         private async void AddPlaylistClicked(object sender, EventArgs e)

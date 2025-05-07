@@ -90,6 +90,13 @@
 
                     <!-- Информация о треке -->
                     <StackLayout Spacing="5">
+                        <Label x:Name="CurrentPlaylistLabel"
+                              Text="No playlist selected"
+                              FontSize="16"
+                              TextColor="Black"
+                              HorizontalOptions="Center"
+                              VerticalOptions="Center" />       
+
                         <Label x:Name="SongTitleLabel" 
                                Text="Press Play to start" 
                                FontSize="22" 

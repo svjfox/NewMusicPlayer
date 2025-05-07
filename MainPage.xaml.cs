@@ -265,19 +265,44 @@ namespace MusicPlayerVS
             await LoadAndPlayCurrentSong();
         }
 
+        public void PlayCurrentSongFromPlaylist()
+        {
+            if (MusicDataService.CurrentPlaylist != null &&
+                MusicDataService.CurrentSongIndex < MusicDataService.CurrentPlaylist.Songs.Count)
+            {
+                var song = MusicDataService.CurrentPlaylist.Songs[MusicDataService.CurrentSongIndex];
+                playlist.Clear();
+                playlist.Add(song);
+                currentSongIndex = 0;
+                PlayMusic().ConfigureAwait(false);
+            }
+        }
+
+        public void PlayNextSongFromPlaylist()
+        {
+            if (MusicDataService.CurrentPlaylist != null)
+            {
+                MusicDataService.CurrentSongIndex =
+                    (MusicDataService.CurrentSongIndex + 1) % MusicDataService.CurrentPlaylist.Songs.Count;
+                PlayCurrentSongFromPlaylist();
+            }
+        }
+
         private async void MediaPlayer_MediaEnded(object sender, EventArgs e)
         {
             if (isRepeatEnabled)
             {
-                await LoadAndPlayCurrentSong();
+                await PlayMusic();
+            }
+            else if (MusicDataService.CurrentPlaylist != null)
+            {
+                PlayNextSongFromPlaylist();
             }
             else
             {
                 currentSongIndex = (currentSongIndex + 1) % playlist.Count;
                 await LoadAndPlayCurrentSong();
             }
-
-            MediaPlayer.Play();
         }
 
         private void VolumeSlider_ValueChanged(object sender, ValueChangedEventArgs e)
@@ -350,6 +375,19 @@ namespace MusicPlayerVS
                     PositionSlider.Maximum = MediaPlayer.Duration.TotalSeconds;
                     TotalTimeLabel.Text = FormatTime(MediaPlayer.Duration);
                 });
+            }
+        }
+        private void UpdateCurrentPlaylistInfo()
+        {
+            if (MusicDataService.CurrentPlaylist != null)
+            {
+                CurrentPlaylistLabel.Text = $"{MusicDataService.CurrentPlaylist.Name} " +
+                                            $"(song {MusicDataService.CurrentSongIndex + 1}/" +
+                                            $"{MusicDataService.CurrentPlaylist.Songs.Count})";
+            }
+            else
+            {
+                CurrentPlaylistLabel.Text = "No playlist selected";
             }
         }
 

@@ -1,11 +1,13 @@
 using MusicPlayerVS.Models;
 using System.Collections.ObjectModel;
 
+using Microsoft.Maui.Controls;
+
 namespace MusicPlayerVS
 {
     public partial class PlaylistDetailPage : ContentPage
     {
-        private Playlist _playlist;
+        private readonly Playlist _playlist;
 
         public PlaylistDetailPage(Playlist playlist)
         {
@@ -15,43 +17,52 @@ namespace MusicPlayerVS
             SongsCollectionView.ItemsSource = _playlist.Songs;
         }
 
-        private void SongSelected(object sender, SelectionChangedEventArgs e)
+        private async void SongSelected(object sender, SelectionChangedEventArgs e)
         {
             if (e.CurrentSelection.FirstOrDefault() is Song selectedSong)
             {
-                // Здесь можно добавить логику воспроизведения выбранной песни
-                // Например, передать в MainPage
-                if (Navigation.NavigationStack.FirstOrDefault() is MainPage mainPage)
-                {
-                    mainPage.PlaySong(selectedSong);
-                }
-
+                await PlaySong(selectedSong);
                 ((CollectionView)sender).SelectedItem = null;
             }
         }
 
-        private void PlayAllClicked(object sender, EventArgs e)
+        private async void PlaySongClicked(object sender, EventArgs e)
         {
-            if (Navigation.NavigationStack.FirstOrDefault() is MainPage mainPage)
+            if (((ImageButton)sender).CommandParameter is Song song)
             {
-                mainPage.PlayPlaylist(_playlist);
+                await PlaySong(song);
             }
         }
 
-        private void ToggleFavoriteClicked(object sender, EventArgs e)
+        private async Task PlaySong(Song song)
         {
-            if (((ImageButton)sender).BindingContext is Song song)
+            MusicDataService.CurrentPlaylist = _playlist;
+
+            // Находим индекс песни в плейлисте
+            var index = _playlist.Songs.IndexOf(song);
+            if (index >= 0)
             {
-                song.IsFavorite = !song.IsFavorite;
-                // Обновляем отображение
-                SongsCollectionView.ItemsSource = null;
-                SongsCollectionView.ItemsSource = _playlist.Songs;
+                MusicDataService.CurrentSongIndex = index;
+
+                // Возвращаемся на главную страницу и запускаем воспроизведение
+                await Navigation.PopAsync();
+
+                if (Navigation.NavigationStack.LastOrDefault() is MainPage mainPage)
+                {
+                    mainPage.PlayCurrentSongFromPlaylist();
+                }
             }
         }
-
-        private async void EditPlaylistClicked(object sender, EventArgs e)
+        private async void PlayAllClicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new AddSongsToPlaylistPage(_playlist));
+            MusicDataService.CurrentPlaylist = _playlist;
+            MusicDataService.CurrentSongIndex = 0;
+            await Navigation.PopAsync();
+
+            if (Navigation.NavigationStack.LastOrDefault() is MainPage mainPage)
+            {
+                mainPage.PlayCurrentSongFromPlaylist();
+            }
         }
     }
 }
