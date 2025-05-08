@@ -49,14 +49,14 @@
                 <ImageButton x:Name="PlaylistsButton" 
                             Source="playlist_icon.png" 
                             Clicked="OpenPlaylists_Clicked"
-                            HeightRequest="30" 
+                            HeightRequest="30"
                             WidthRequest="30"/>
 
                 <ImageButton x:Name="ThemeToggleButton" 
+                            Source="theme_icon.png" 
                             Clicked="ToggleTheme_Clicked"
-                            BackgroundColor="Transparent"
-                            HeightRequest="30"
-                            WidthRequest="30"/>
+                            AutomationProperties.Name="Toggle Theme"
+                            HeightRequest="30" WidthRequest="30"/>
             </StackLayout>
 
             <Frame x:Name="MainContentFrame" Grid.Row="1" Margin="20" VerticalOptions="Center">

@@ -53,7 +53,7 @@ namespace MusicPlayerVS
             // Устанавливаем начальную тему
             Preferences.Set("IsDarkTheme", isDarkTheme);
             isDarkTheme = Preferences.Get("IsDarkTheme", false); // Установлено false для светлой темы по умолчанию
-            
+
             UpdateThemeIcon();
 
             // Инициализация обработчиков событий
