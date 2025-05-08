@@ -51,8 +51,9 @@ namespace MusicPlayerVS
             InitializeComponent();
 
             // Устанавливаем начальную тему
+            Preferences.Set("IsDarkTheme", isDarkTheme);
             isDarkTheme = Preferences.Get("IsDarkTheme", false); // Установлено false для светлой темы по умолчанию
-
+            
             UpdateThemeIcon();
 
             // Инициализация обработчиков событий
@@ -106,14 +107,17 @@ namespace MusicPlayerVS
         private void ToggleTheme_Clicked(object sender, EventArgs e)
         {
             isDarkTheme = !isDarkTheme;
+
             if (isDarkTheme)
             {
-                ((App)Application.Current).ApplyDarkTheme();
+                (Application.Current as App)?.ApplyDarkTheme();
             }
             else
             {
-                ((App)Application.Current).ApplyLightTheme();
+                (Application.Current as App)?.ApplyLightTheme();
             }
+
+            // Обновляем иконку
             UpdateThemeIcon();
         }
 
@@ -125,13 +129,18 @@ namespace MusicPlayerVS
         }
 
 
+
         private void ForceThemeUpdate()
         {
+            Debug.WriteLine("Forcing theme update...");
+
             var textColor = (Color)Application.Current.Resources["TextColor"];
             var bgColor = (Color)Application.Current.Resources["BackgroundColor"];
             var cardColor = (Color)Application.Current.Resources["CardColor"];
             var primaryColor = (Color)Application.Current.Resources["PrimaryColor"];
             var secondaryColor = (Color)Application.Current.Resources["SecondaryColor"];
+
+            Debug.WriteLine($"TextColor: {textColor}, BackgroundColor: {bgColor}, CardColor: {cardColor}");
 
             // Обновляем элементы
             SongTitleLabel.TextColor = textColor;
@@ -422,6 +431,24 @@ namespace MusicPlayerVS
                     PositionSlider.Maximum = MediaPlayer.Duration.TotalSeconds;
                     TotalTimeLabel.Text = FormatTime(MediaPlayer.Duration);
                 });
+            }
+        }
+        private void CheckThemeResources()
+        {
+            Debug.WriteLine("Checking theme resources...");
+            foreach (var key in Application.Current.Resources.Keys)
+            {
+                Debug.WriteLine($"Resource Key: {key}");
+            }
+
+            // Проверяем наличие конкретных ключей
+            if (Application.Current.Resources.TryGetValue("TextColor", out var textColor))
+            {
+                Debug.WriteLine($"TextColor: {textColor}");
+            }
+            else
+            {
+                Debug.WriteLine("TextColor not found!");
             }
         }
 

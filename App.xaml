@@ -11,8 +11,7 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
                 <!-- Подключаем темы -->
-                <themes:LightTheme x:Key="LightTheme" />
-                <themes:DarkTheme x:Key="DarkTheme" />
+
             </ResourceDictionary.MergedDictionaries>
             
             <!-- Перемещаем FavoriteIconConverter сюда -->

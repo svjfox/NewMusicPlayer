@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maui.Controls;
 using MusicPlayerVS.Resources.Themes;
 using System.Linq;
+using System.Diagnostics; // Добавлено пространство имен
 
 namespace MusicPlayerVS
 {
@@ -14,12 +15,12 @@ namespace MusicPlayerVS
             InitializeComponent();
 
             // Сохраняем ссылки на темы
-            _lightTheme = new LightTheme();
-            _darkTheme = new DarkTheme();
+            _lightTheme = new MusicPlayerVS.Resources.Themes.LightTheme();
+            _darkTheme = new MusicPlayerVS.Resources.Themes.DarkTheme();
 
             // Загружаем сохраненную тему или устанавливаем светлую по умолчанию
-            var isDark = Preferences.Get("IsDarkTheme", false); // false - светлая тема по умолчанию
-            if (isDark)
+            bool isDarkTheme = Preferences.Get("IsDarkTheme", false);
+            if (isDarkTheme)
             {
                 ApplyDarkTheme();
             }
@@ -33,24 +34,22 @@ namespace MusicPlayerVS
 
         public void ApplyLightTheme()
         {
-            // Очищаем словари и добавляем светлую тему
+            Debug.WriteLine("Applying Light Theme...");
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(_lightTheme);
             Current.UserAppTheme = AppTheme.Light;
 
-            // Сохраняем выбор пользователя
-            Preferences.Set("IsDarkTheme", false); // Устанавливаем false для светлой темы
+            Preferences.Set("IsDarkTheme", false);
         }
 
         public void ApplyDarkTheme()
         {
-            // Очищаем словари и добавляем темную тему
+            Debug.WriteLine("Applying Dark Theme...");
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(_darkTheme);
             Current.UserAppTheme = AppTheme.Dark;
 
-            // Сохраняем выбор пользователя
-            Preferences.Set("IsDarkTheme", true); // Устанавливаем true для темной темы
+            Preferences.Set("IsDarkTheme", true);
         }
     }
 }
