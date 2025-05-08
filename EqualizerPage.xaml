@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MusicPlayerVS.EqualizerPage"
+             Title="Эквалайзер"
+             BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="25">
+            <!-- Заголовок -->
+            <Label Text="Эквалайзер" 
+                   FontSize="28" 
+                   HorizontalOptions="Center" 
+                   TextColor="{AppThemeBinding Light=#6200EE, Dark=#BB86FC}"
+                   FontAttributes="Bold"/>
+
+            <!-- Пресеты -->
+            <StackLayout Orientation="Horizontal" 
+                         HorizontalOptions="Center" 
+                         Spacing="15">
+                <Button Text="Рок" 
+                        Clicked="OnPresetClicked" 
+                        CommandParameter="Rock"
+                        BackgroundColor="#6200EE"
+                        TextColor="White"
+                        CornerRadius="20"
+                        WidthRequest="80"/>
+
+                <Button Text="Поп" 
+                        Clicked="OnPresetClicked" 
+                        CommandParameter="Pop"
+                        BackgroundColor="#6200EE"
+                        TextColor="White"
+                        CornerRadius="20"
+                        WidthRequest="80"/>
+
+                <Button Text="Джаз" 
+                        Clicked="OnPresetClicked" 
+                        CommandParameter="Jazz"
+                        BackgroundColor="#6200EE"
+                        TextColor="White"
+                        CornerRadius="20"
+                        WidthRequest="80"/>
+            </StackLayout>
+
+            <!-- Вертикальные слайдеры эквалайзера -->
+            <Grid x:Name="EqualizerGrid"
+                  ColumnDefinitions="*,*,*,*,*,*,*,*,*,*"
+                  RowDefinitions="300,Auto"
+                  ColumnSpacing="15"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center">
+
+                <!-- Слайдеры -->
+                <Slider Grid.Row="0" Grid.Column="0" AutomationId="0" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <Slider Grid.Row="0" Grid.Column="1" AutomationId="1" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <Slider Grid.Row="0" Grid.Column="2" AutomationId="2" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <Slider Grid.Row="0" Grid.Column="3" AutomationId="3" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <Slider Grid.Row="0" Grid.Column="4" AutomationId="4" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <Slider Grid.Row="0" Grid.Column="5" AutomationId="5" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <Slider Grid.Row="0" Grid.Column="6" AutomationId="6" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <Slider Grid.Row="0" Grid.Column="7" AutomationId="7" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <Slider Grid.Row="0" Grid.Column="8" AutomationId="8" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <Slider Grid.Row="0" Grid.Column="9" AutomationId="9" Minimum="-10" Maximum="10"
+                        MinimumTrackColor="#6200EE" MaximumTrackColor="#E0E0E0" ThumbColor="#6200EE"
+                        Rotation="270" WidthRequest="300" HeightRequest="50"
+                        Margin="0,0,0,20"/>
+
+                <!-- Подписи частот -->
+                <Label Grid.Row="1" Grid.Column="0" Text="60Hz" HorizontalOptions="Center" FontSize="12"/>
+                <Label Grid.Row="1" Grid.Column="1" Text="150Hz" HorizontalOptions="Center" FontSize="12"/>
+                <Label Grid.Row="1" Grid.Column="2" Text="400Hz" HorizontalOptions="Center" FontSize="12"/>
+                <Label Grid.Row="1" Grid.Column="3" Text="1kHz" HorizontalOptions="Center" FontSize="12"/>
+                <Label Grid.Row="1" Grid.Column="4" Text="2.5kHz" HorizontalOptions="Center" FontSize="12"/>
+                <Label Grid.Row="1" Grid.Column="5" Text="6kHz" HorizontalOptions="Center" FontSize="12"/>
+                <Label Grid.Row="1" Grid.Column="6" Text="15kHz" HorizontalOptions="Center" FontSize="12"/>
+                <Label Grid.Row="1" Grid.Column="7" Text="4kHz" HorizontalOptions="Center" FontSize="12"/>
+                <Label Grid.Row="1" Grid.Column="8" Text="10kHz" HorizontalOptions="Center" FontSize="12"/>
+                <Label Grid.Row="1" Grid.Column="9" Text="16kHz" HorizontalOptions="Center" FontSize="12"/>
+            </Grid>
+
+            <!-- Кнопки управления -->
+            <StackLayout Orientation="Horizontal" 
+                         HorizontalOptions="Center" 
+                         Spacing="20">
+                <Button Text="Сбросить" 
+                        Clicked="OnResetClicked"
+                        BackgroundColor="#FF3E30"
+                        TextColor="White"
+                        CornerRadius="20"
+                        WidthRequest="120"/>
+
+                <Button Text="Сохранить" 
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="#03DAC6"
+                        TextColor="Black"
+                        CornerRadius="20"
+                        WidthRequest="120"/>
+            </StackLayout>
+
+            <!-- Переключатель -->
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="10">
+                <Switch x:Name="EqualizerSwitch"
+                        OnColor="{AppThemeBinding Light=#BB86FC, Dark=#3700B3}"
+                        ThumbColor="{AppThemeBinding Light=#FFFFFF, Dark=#E0E0E0}"
+                        Toggled="OnToggleClicked"/>
+                <Label Text="Включить эквалайзер" 
+                       FontSize="14"
+                       VerticalOptions="Center"/>
+            </StackLayout>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

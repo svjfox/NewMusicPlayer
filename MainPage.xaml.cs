@@ -405,6 +405,13 @@ namespace MusicPlayerVS
         }
 
         #endregion
+
+        private async void OpenEqualizer_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new EqualizerPage());
+        }
+
+
     }
     public class Song
     {

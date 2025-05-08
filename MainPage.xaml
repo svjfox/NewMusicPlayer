@@ -60,18 +60,29 @@
             </Grid.RowDefinitions>
 
             <!-- Заголовок и переключатель темы -->
-            <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Padding="10">
+            <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Padding="10" Spacing="10">
+                <ImageButton Source="equalizer.png"
+                             Clicked="OpenEqualizer_Clicked"
+                             BackgroundColor="Transparent"
+                             HeightRequest="30"
+                             WidthRequest="30"
+                             Margin="0,0,10,0"
+                             AutomationProperties.Name="Open Equalizer" />
+
                 <ImageButton x:Name="PlaylistsButton" 
-                Source="playlist_icon.png" 
-                Clicked="OpenPlaylists_Clicked"
-                AutomationProperties.Name="Playlists"
-                HeightRequest="30" WidthRequest="30"/>
+                             Source="playlist_icon.png" 
+                             Clicked="OpenPlaylists_Clicked"
+                             AutomationProperties.Name="Playlists"
+                             HeightRequest="30" 
+                             WidthRequest="30"
+                             Margin="0,0,10,0" />
 
                 <ImageButton x:Name="ThemeToggleButton" 
-                Source="theme_icon.png" 
-                Clicked="ToggleTheme_Clicked"
-                AutomationProperties.Name="Toggle Theme"
-                HeightRequest="30" WidthRequest="30"/>
+                             Source="theme_icon.png" 
+                             Clicked="ToggleTheme_Clicked"
+                             AutomationProperties.Name="Toggle Theme"
+                             HeightRequest="30" 
+                             WidthRequest="30" />
             </StackLayout>
 
             <!-- Основной контент -->
