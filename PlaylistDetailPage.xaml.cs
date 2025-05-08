@@ -1,5 +1,7 @@
 using MusicPlayerVS.Models;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using CommunityToolkit.Maui.Alerts;
 using Microsoft.Maui.Controls;
 
 namespace MusicPlayerVS
@@ -13,15 +15,15 @@ namespace MusicPlayerVS
             InitializeComponent();
             _playlist = playlist;
             BindingContext = _playlist;
-            SongsCollectionView.ItemsSource = _playlist.Songs; // Отображаем песни в CollectionView
+            SongsCollectionView.ItemsSource = _playlist.Songs;
         }
 
         private async void SongSelected(object sender, SelectionChangedEventArgs e)
         {
             if (e.CurrentSelection.FirstOrDefault() is Song selectedSong)
             {
-                await PlaySong(selectedSong); // Воспроизведение выбранной песни
-                ((CollectionView)sender).SelectedItem = null; // Снимаем выделение
+                await PlaySong(selectedSong);
+                ((CollectionView)sender).SelectedItem = null;
             }
         }
 
@@ -29,35 +31,44 @@ namespace MusicPlayerVS
         {
             if (((ImageButton)sender).CommandParameter is Song song)
             {
-                await PlaySong(song); // Воспроизведение выбранной песни
+                await PlaySong(song);
             }
         }
 
         private async Task PlaySong(Song song)
         {
-            MusicDataService.CurrentPlaylist = _playlist; // Устанавливаем текущий плейлист
-            MusicDataService.CurrentSongIndex = _playlist.Songs.IndexOf(song); // Индекс текущей песни
+            MusicDataService.CurrentPlaylist = _playlist;
+            MusicDataService.CurrentSongIndex = _playlist.Songs.IndexOf(song);
 
-            // Возвращаемся на главную страницу
             await Navigation.PopAsync();
 
             if (Navigation.NavigationStack.LastOrDefault() is MainPage mainPage)
             {
-                mainPage.PlayCurrentSongFromPlaylist(); // Воспроизведение песни в главном плеере
+                mainPage.PlayCurrentSongFromPlaylist();
             }
         }
 
         private async void PlayAllClicked(object sender, EventArgs e)
         {
+            if (_playlist.Songs == null || _playlist.Songs.Count == 0)
+            {
+                await DisplayAlert("Info", "Playlist is empty!", "OK");
+                return;
+            }
+
             MusicDataService.CurrentPlaylist = _playlist;
-            MusicDataService.CurrentSongIndex = 0; // Начинаем воспроизведение с первой песни
+            MusicDataService.CurrentSongIndex = 0;
+
             await Navigation.PopAsync();
 
             if (Navigation.NavigationStack.LastOrDefault() is MainPage mainPage)
             {
-                mainPage.PlayCurrentSongFromPlaylist(); // Воспроизведение всех песен
+                mainPage.PlayPlaylist(_playlist);
+
+                var toast = Toast.Make($"Playing '{_playlist.Name}' playlist",
+                                      CommunityToolkit.Maui.Core.ToastDuration.Short);
+                await toast.Show();
             }
         }
-
     }
 }

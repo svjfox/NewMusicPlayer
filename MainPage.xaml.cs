@@ -98,12 +98,12 @@ namespace MusicPlayerVS
             await Navigation.PushAsync(new PlaylistsPage());
         }
 
+
         public void PlayPlaylist(Playlist playlist)
         {
             _currentPlaylist = playlist;
-            this.playlist.Clear(); // Очищаем текущий плейлист
+            this.playlist.Clear();
 
-            // Добавляем песни из выбранного плейлиста
             foreach (var song in playlist.Songs)
             {
                 this.playlist.Add(new Song(song.Title, song.Artist, song.FilePath)
@@ -271,10 +271,7 @@ namespace MusicPlayerVS
                 MusicDataService.CurrentSongIndex < MusicDataService.CurrentPlaylist.Songs.Count)
             {
                 var song = MusicDataService.CurrentPlaylist.Songs[MusicDataService.CurrentSongIndex];
-                playlist.Clear();
-                playlist.Add(song);
-                currentSongIndex = 0;
-                PlayMusic().ConfigureAwait(false);
+                PlaySong(song);
             }
         }
 
@@ -288,11 +285,11 @@ namespace MusicPlayerVS
             }
         }
 
-        private async void MediaPlayer_MediaEnded(object sender, EventArgs e)
+        private void MediaPlayer_MediaEnded(object sender, EventArgs e)
         {
             if (isRepeatEnabled)
             {
-                await PlayMusic();
+                PlayMusic().ConfigureAwait(false);
             }
             else if (MusicDataService.CurrentPlaylist != null)
             {
@@ -301,7 +298,7 @@ namespace MusicPlayerVS
             else
             {
                 currentSongIndex = (currentSongIndex + 1) % playlist.Count;
-                await LoadAndPlayCurrentSong();
+                LoadAndPlayCurrentSong().ConfigureAwait(false);
             }
         }
 

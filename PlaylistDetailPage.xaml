@@ -4,19 +4,25 @@
              x:Class="MusicPlayerVS.PlaylistDetailPage"
              Title="{Binding Name}">
 
-    <Grid>
-        <!-- Кнопка для воспроизведения всех песен -->
-        <Button Text="Play All"
-                BackgroundColor="{DynamicResource PrimaryColor}"
-                TextColor="White"
-                CornerRadius="20"
-                HeightRequest="50"
-                HorizontalOptions="Center"
-                VerticalOptions="Start"
-                Margin="10"
-                Clicked="PlayAllClicked"/>
+    <Grid RowDefinitions="Auto,*">
+        <!-- Кнопка Play All и информация о плейлисте -->
+        <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="Center" Spacing="20" Margin="10">
+            <Button Text="Play All"
+                    BackgroundColor="{DynamicResource PrimaryColor}"
+                    TextColor="White"
+                    CornerRadius="20"
+                    HeightRequest="50"
+                    WidthRequest="150"
+                    Clicked="PlayAllClicked"/>
 
+            <Label Text="{Binding Songs.Count, StringFormat='{0} songs'}"
+                   VerticalOptions="Center"
+                   FontSize="16"/>
+        </StackLayout>
+
+        <!-- Список песен -->
         <CollectionView x:Name="SongsCollectionView"
+                        Grid.Row="1"
                         SelectionMode="Single"
                         SelectionChanged="SongSelected">
             <CollectionView.ItemTemplate>
