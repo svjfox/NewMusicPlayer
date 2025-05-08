@@ -66,12 +66,24 @@ namespace MusicPlayerVS
             PositionSlider.ValueChanged += PositionSlider_ValueChanged;
             VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
             PlaylistsButton.Clicked += OpenPlaylists_Clicked;
+            
+
+            // Обработчики событий медиаплеера
+            MediaPlayer.MediaOpened += MediaPlayer_MediaOpened;
+            MediaPlayer.MediaEnded += MediaPlayer_MediaEnded;
+            MediaPlayer.MediaFailed += MediaPlayer_MediaFailed;
 
             InitializePlaylist();
 
             // Настройка таймера
             positionTimer.Elapsed += (s, e) => UpdatePlayerUI();
             positionTimer.Start();
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            UpdateCurrentPlaylistInfo();
         }
 
         private void InitializePlaylist()
@@ -101,9 +113,8 @@ namespace MusicPlayerVS
         public void PlayPlaylist(Playlist playlist)
         {
             _currentPlaylist = playlist;
-            this.playlist.Clear(); // Очищаем текущий плейлист
+            this.playlist.Clear();
 
-            // Добавляем песни из выбранного плейлиста
             foreach (var song in playlist.Songs)
             {
                 this.playlist.Add(new Song(song.Title, song.Artist, song.FilePath)
@@ -114,12 +125,13 @@ namespace MusicPlayerVS
             }
 
             currentSongIndex = 0;
+            UpdateCurrentPlaylistInfo();
             PlayMusic().ConfigureAwait(false);
         }
 
         public void PlaySong(Song song)
         {
-            var index = _currentPlaylist?.Songs.IndexOf(song) ?? -1;
+            var index = _currentPlaylist?.Songs.IndexOf(song) ?? playlist.IndexOf(song);
             if (index >= 0)
             {
                 currentSongIndex = index;
@@ -127,7 +139,6 @@ namespace MusicPlayerVS
             }
             else
             {
-                // Если песня не в текущем плейлисте, создаем временный плейлист
                 playlist.Clear();
                 playlist.Add(new Song(song.Title, song.Artist, song.FilePath)
                 {
@@ -137,6 +148,40 @@ namespace MusicPlayerVS
 
                 currentSongIndex = 0;
                 PlayMusic().ConfigureAwait(false);
+            }
+        }
+
+        public void PlayCurrentSongFromPlaylist()
+        {
+            if (MusicDataService.CurrentPlaylist != null &&
+                MusicDataService.CurrentSongIndex < MusicDataService.CurrentPlaylist.Songs.Count)
+            {
+                var song = MusicDataService.CurrentPlaylist.Songs[MusicDataService.CurrentSongIndex];
+                PlaySong(song);
+            }
+        }
+
+        public void PlayNextSongFromPlaylist()
+        {
+            if (MusicDataService.CurrentPlaylist != null)
+            {
+                MusicDataService.CurrentSongIndex =
+                    (MusicDataService.CurrentSongIndex + 1) % MusicDataService.CurrentPlaylist.Songs.Count;
+                PlayCurrentSongFromPlaylist();
+            }
+        }
+
+        private void UpdateCurrentPlaylistInfo()
+        {
+            if (_currentPlaylist != null)
+            {
+                CurrentPlaylistLabel.Text = $"{_currentPlaylist.Name} " +
+                                         $"(song {currentSongIndex + 1}/{_currentPlaylist.Songs.Count})";
+                CurrentPlaylistLabel.IsVisible = true;
+            }
+            else
+            {
+                CurrentPlaylistLabel.IsVisible = false;
             }
         }
 
@@ -185,14 +230,17 @@ namespace MusicPlayerVS
 
         private async Task PlayMusic()
         {
+            if (playlist.Count == 0) return;
+
             Song currentSong = playlist[currentSongIndex];
             SongTitleLabel.Text = currentSong.Title;
             ArtistLabel.Text = currentSong.Artist;
             AlbumCoverImage.Source = currentSong.CoverImage;
+            isFavorite = currentSong.IsFavorite;
+            FavoriteButton.Source = isFavorite ? "favorite_on_icon.png" : "favorite_icon.png";
 
-            ChangeLabel($"Now playing {currentSong.Title}", Colors.White);
-
-            if (MediaPlayer.Source == null)
+            if (MediaPlayer.Source == null ||
+                (MediaPlayer.Source is FileMediaSource fileSource && fileSource.Path != currentSong.FilePath))
             {
                 MediaPlayer.Source = MediaSource.FromResource(currentSong.FilePath);
             }
@@ -201,13 +249,13 @@ namespace MusicPlayerVS
 
             PlayButton.IsVisible = false;
             PauseButton.IsVisible = true;
+            UpdateCurrentPlaylistInfo();
         }
 
         private async Task PauseMusic()
         {
             ChangeLabel("Paused...", Colors.Orange);
             MediaPlayer.Pause();
-
             PlayButton.IsVisible = true;
             PauseButton.IsVisible = false;
         }
@@ -235,25 +283,26 @@ namespace MusicPlayerVS
 
         private async Task LoadAndPlayCurrentSong()
         {
+            if (playlist.Count == 0) return;
+
             Song currentSong = playlist[currentSongIndex];
             MediaPlayer.Source = MediaSource.FromResource(currentSong.FilePath);
 
             SongTitleLabel.Text = currentSong.Title;
             ArtistLabel.Text = currentSong.Artist;
             AlbumCoverImage.Source = currentSong.CoverImage;
-
-            ChangeLabel($"Now playing {currentSong.Title}", Colors.LightSkyBlue);
+            isFavorite = currentSong.IsFavorite;
+            FavoriteButton.Source = isFavorite ? "favorite_on_icon.png" : "favorite_icon.png";
 
             PrevButton.IsEnabled = currentSongIndex != 0;
             NextButton.IsEnabled = currentSongIndex != playlist.Count - 1;
+            UpdateCurrentPlaylistInfo();
         }
-
         private void ChangeLabel(string text, Color textColor)
         {
             SongTitleLabel.Text = text;
             SongTitleLabel.TextColor = textColor;
         }
-
         #endregion
 
         #region Event Handlers
@@ -265,43 +314,21 @@ namespace MusicPlayerVS
             await LoadAndPlayCurrentSong();
         }
 
-        public void PlayCurrentSongFromPlaylist()
-        {
-            if (MusicDataService.CurrentPlaylist != null &&
-                MusicDataService.CurrentSongIndex < MusicDataService.CurrentPlaylist.Songs.Count)
-            {
-                var song = MusicDataService.CurrentPlaylist.Songs[MusicDataService.CurrentSongIndex];
-                playlist.Clear();
-                playlist.Add(song);
-                currentSongIndex = 0;
-                PlayMusic().ConfigureAwait(false);
-            }
-        }
-
-        public void PlayNextSongFromPlaylist()
-        {
-            if (MusicDataService.CurrentPlaylist != null)
-            {
-                MusicDataService.CurrentSongIndex =
-                    (MusicDataService.CurrentSongIndex + 1) % MusicDataService.CurrentPlaylist.Songs.Count;
-                PlayCurrentSongFromPlaylist();
-            }
-        }
-
-        private async void MediaPlayer_MediaEnded(object sender, EventArgs e)
+        private void MediaPlayer_MediaEnded(object sender, EventArgs e)
         {
             if (isRepeatEnabled)
             {
-                await PlayMusic();
+                PlayMusic().ConfigureAwait(false);
             }
-            else if (MusicDataService.CurrentPlaylist != null)
+            else if (_currentPlaylist != null)
             {
-                PlayNextSongFromPlaylist();
+                currentSongIndex = (currentSongIndex + 1) % _currentPlaylist.Songs.Count;
+                PlayCurrentSongFromPlaylist();
             }
             else
             {
                 currentSongIndex = (currentSongIndex + 1) % playlist.Count;
-                await LoadAndPlayCurrentSong();
+                LoadAndPlayCurrentSong().ConfigureAwait(false);
             }
         }
 
@@ -354,15 +381,14 @@ namespace MusicPlayerVS
             isFavorite = !isFavorite;
             ((ImageButton)sender).Source = isFavorite ? "favorite_on_icon.png" : "favorite_icon.png";
 
-            // Обновляем статус песни в текущем плейлисте
-            if (_currentPlaylist != null && currentSongIndex < playlist.Count)
+            if (currentSongIndex < playlist.Count)
             {
-                var currentSong = playlist[currentSongIndex];
-                var songInPlaylist = _currentPlaylist.Songs.FirstOrDefault(s => s.FilePath == currentSong.FilePath);
-                if (songInPlaylist != null)
-                {
-                    songInPlaylist.IsFavorite = isFavorite;
-                }
+                playlist[currentSongIndex].IsFavorite = isFavorite;
+            }
+
+            if (_currentPlaylist != null && currentSongIndex < _currentPlaylist.Songs.Count)
+            {
+                _currentPlaylist.Songs[currentSongIndex].IsFavorite = isFavorite;
             }
         }
 
@@ -377,23 +403,9 @@ namespace MusicPlayerVS
                 });
             }
         }
-        private void UpdateCurrentPlaylistInfo()
-        {
-            if (MusicDataService.CurrentPlaylist != null)
-            {
-                CurrentPlaylistLabel.Text = $"{MusicDataService.CurrentPlaylist.Name} " +
-                                            $"(song {MusicDataService.CurrentSongIndex + 1}/" +
-                                            $"{MusicDataService.CurrentPlaylist.Songs.Count})";
-            }
-            else
-            {
-                CurrentPlaylistLabel.Text = "No playlist selected";
-            }
-        }
 
         #endregion
     }
-
     public class Song
     {
         public string Title { get; set; }
