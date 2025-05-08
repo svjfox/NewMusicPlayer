@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Controls;
 using MusicPlayerVS.Resources.Themes;
+using System.Linq;
 
 namespace MusicPlayerVS
 {
