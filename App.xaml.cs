@@ -6,41 +6,51 @@ namespace MusicPlayerVS
 {
     public partial class App : Application
     {
+        private readonly ResourceDictionary _lightTheme;
+        private readonly ResourceDictionary _darkTheme;
+
         public App()
         {
             InitializeComponent();
 
-            // Загружаем сохраненную тему, по умолчанию светлая
-            var isDark = Preferences.Get("IsDarkTheme", false); // Установлено false для светлой темы по умолчанию
-            ApplyTheme(isDark);
+            // Сохраняем ссылки на темы
+            _lightTheme = new LightTheme();
+            _darkTheme = new DarkTheme();
+
+            // Загружаем сохраненную тему или устанавливаем светлую по умолчанию
+            var isDark = Preferences.Get("IsDarkTheme", false); // false - светлая тема по умолчанию
+            if (isDark)
+            {
+                ApplyDarkTheme();
+            }
+            else
+            {
+                ApplyLightTheme();
+            }
 
             MainPage = new NavigationPage(new MainPage());
         }
 
-        public static void ApplyTheme(bool isDark)
+        public void ApplyLightTheme()
         {
-            // Удаляем только ранее добавленные словари тем
-            var themeDictionaries = Current.Resources.MergedDictionaries
-                .Where(d => d.GetType() == typeof(DarkTheme) || d.GetType() == typeof(LightTheme))
-                .ToList();
+            // Очищаем словари и добавляем светлую тему
+            Resources.MergedDictionaries.Clear();
+            Resources.MergedDictionaries.Add(_lightTheme);
+            Current.UserAppTheme = AppTheme.Light;
 
-            foreach (var themeDictionary in themeDictionaries)
-            {
-                Current.Resources.MergedDictionaries.Remove(themeDictionary);
-            }
+            // Сохраняем выбор пользователя
+            Preferences.Set("IsDarkTheme", false); // Устанавливаем false для светлой темы
+        }
 
-            // Добавляем новый словарь тем
-            if (isDark)
-            {
-                Current.Resources.MergedDictionaries.Add(new DarkTheme());
-            }
-            else
-            {
-                Current.Resources.MergedDictionaries.Add(new LightTheme());
-            }
+        public void ApplyDarkTheme()
+        {
+            // Очищаем словари и добавляем темную тему
+            Resources.MergedDictionaries.Clear();
+            Resources.MergedDictionaries.Add(_darkTheme);
+            Current.UserAppTheme = AppTheme.Dark;
 
-            // Сохраняем выбранную тему
-            Preferences.Set("IsDarkTheme", isDark);
+            // Сохраняем выбор пользователя
+            Preferences.Set("IsDarkTheme", true); // Устанавливаем true для темной темы
         }
     }
 }

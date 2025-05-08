@@ -1,14 +1,22 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:themes="clr-namespace:MusicPlayerVS.Resources.Themes"
+             xmlns:converters="clr-namespace:MusicPlayerVS"
              x:Class="MusicPlayerVS.App">
     <Application.Resources>
         <ResourceDictionary>
-            <!-- Общие стили и ресурсы -->
-            <Style TargetType="Label">
-                <Setter Property="FontFamily" Value="OpenSansRegular"/>
-            </Style>
-            <!-- Добавьте другие общие ресурсы, если необходимо -->
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Подключаем ресурсные словари стилей и цветов -->
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <!-- Подключаем темы -->
+                <themes:LightTheme x:Key="LightTheme" />
+                <themes:DarkTheme x:Key="DarkTheme" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Перемещаем FavoriteIconConverter сюда -->
+            <converters:FavoriteIconConverter x:Key="FavoriteIconConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

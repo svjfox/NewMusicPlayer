@@ -26,7 +26,7 @@ namespace MusicPlayerVS
     public partial class MainPage : ContentPage
     {
         private bool isFirstButtonClick = true;
-        private bool isDarkTheme = false; // Установлено false для светлой темы по умолчанию
+        private bool isDarkTheme = true; // Установлено false для светлой темы по умолчанию
         private bool isRepeatEnabled = false;
         private bool isFavorite = false;
         private ObservableCollection<Playlist> _playlists = new ObservableCollection<Playlist>();
@@ -51,7 +51,8 @@ namespace MusicPlayerVS
             InitializeComponent();
 
             // Устанавливаем начальную тему
-            isDarkTheme = Preferences.Get("IsDarkTheme", true);
+            isDarkTheme = Preferences.Get("IsDarkTheme", false); // Установлено false для светлой темы по умолчанию
+
             UpdateThemeIcon();
 
             // Инициализация обработчиков событий
@@ -82,7 +83,7 @@ namespace MusicPlayerVS
         {
             base.OnAppearing();
             UpdateCurrentPlaylistInfo();
-            ForceThemeUpdate();
+            ForceThemeUpdate(); // Применяем текущую тему
         }
 
         private void InitializePlaylist()
@@ -104,17 +105,25 @@ namespace MusicPlayerVS
 
         private void ToggleTheme_Clicked(object sender, EventArgs e)
         {
-            isDarkTheme = !isDarkTheme; // Переключаем флаг темы
-            App.ApplyTheme(isDarkTheme); // Применяем тему через статический метод
-            UpdateThemeIcon(); // Обновляем иконку переключателя
-            ForceThemeUpdate(); // Применяем изменения к текущему интерфейсу
+            isDarkTheme = !isDarkTheme;
+            if (isDarkTheme)
+            {
+                ((App)Application.Current).ApplyDarkTheme();
+            }
+            else
+            {
+                ((App)Application.Current).ApplyLightTheme();
+            }
+            UpdateThemeIcon();
         }
+
 
         private void UpdateThemeIcon()
         {
-            // Исправлено условие для корректного отображения иконки темы
+            // Обновляем иконку переключения темы
             ThemeToggleButton.Source = isDarkTheme ? "light_theme.png" : "dark_theme.png";
         }
+
 
         private void ForceThemeUpdate()
         {
