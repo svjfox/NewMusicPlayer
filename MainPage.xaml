@@ -8,8 +8,6 @@
              Title="Music Player">
 
     <ContentPage.Resources>
-        
-        <!-- Стили -->
         <Style TargetType="Label">
             <Setter Property="TextColor" Value="{DynamicResource TextColor}" />
             <Setter Property="FontFamily" Value="OpenSansRegular" />
@@ -28,17 +26,9 @@
             <Setter Property="MaximumTrackColor" Value="{DynamicResource SliderTrackColor}" />
             <Setter Property="ThumbColor" Value="{DynamicResource SliderThumbColor}" />
         </Style>
-
-        <Style TargetType="ImageButton">
-            <Setter Property="BackgroundColor" Value="Transparent" />
-            <Setter Property="HeightRequest" Value="60" />
-            <Setter Property="WidthRequest" Value="60" />
-        </Style>
     </ContentPage.Resources>
 
-    <!-- Объединяем MediaElement и Grid в общий контейнер -->
     <Grid>
-        <!-- MediaElement -->
         <toolkit:MediaElement x:Name="MediaPlayer"
                              ShouldShowPlaybackControls="False"
                              ShouldLoopPlayback="False"
@@ -48,36 +38,29 @@
                              MediaOpened="MediaPlayer_MediaOpened"
                              IsVisible="False" />
 
-        <!-- Основной контент -->
         <Grid BackgroundColor="{DynamicResource BackgroundColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <!-- Заголовок и переключатель темы -->
                 <RowDefinition Height="*" />
-                <!-- Основной контент -->
                 <RowDefinition Height="Auto" />
-                <!-- Управление -->
             </Grid.RowDefinitions>
 
-            <!-- Заголовок и переключатель темы -->
             <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Padding="10">
                 <ImageButton x:Name="PlaylistsButton" 
-                Source="playlist_icon.png" 
-                Clicked="OpenPlaylists_Clicked"
-                AutomationProperties.Name="Playlists"
-                HeightRequest="30" WidthRequest="30"/>
+                            Source="playlist_icon.png" 
+                            Clicked="OpenPlaylists_Clicked"
+                            HeightRequest="30" 
+                            WidthRequest="30"/>
 
                 <ImageButton x:Name="ThemeToggleButton" 
-                Source="theme_icon.png" 
-                Clicked="ToggleTheme_Clicked"
-                AutomationProperties.Name="Toggle Theme"
-                HeightRequest="30" WidthRequest="30"/>
+                            Clicked="ToggleTheme_Clicked"
+                            BackgroundColor="Transparent"
+                            HeightRequest="30"
+                            WidthRequest="30"/>
             </StackLayout>
 
-            <!-- Основной контент -->
-            <Frame Grid.Row="1" Margin="20" VerticalOptions="Center">
+            <Frame x:Name="MainContentFrame" Grid.Row="1" Margin="20" VerticalOptions="Center">
                 <StackLayout Spacing="20">
-                    <!-- Обложка альбома -->
                     <Frame HeightRequest="250" WidthRequest="250" 
                            HorizontalOptions="Center" 
                            Padding="0" 
@@ -88,14 +71,13 @@
                                Aspect="AspectFill"/>
                     </Frame>
 
-                    <!-- Информация о треке -->
                     <StackLayout Spacing="5">
-                        <Label x:Name="CurrentPlaylistLabel"
-                              Text="No playlist selected"
-                              FontSize="16"
-                              TextColor="Black"
-                              HorizontalOptions="Center"
-                              VerticalOptions="Center" />       
+                        <Label x:Name="CurrentPlaylistLabel" 
+                               HorizontalOptions="Center"
+                               Margin="0,10,0,0"
+                               FontSize="14"
+                               TextColor="{DynamicResource SecondaryColor}"
+                               IsVisible="False"/>
 
                         <Label x:Name="SongTitleLabel" 
                                Text="Press Play to start" 
@@ -105,11 +87,9 @@
                         <Label x:Name="ArtistLabel" 
                                Text="Unknown Artist" 
                                FontSize="16" 
-                               HorizontalOptions="Center" 
-                               TextColor="{DynamicResource SecondaryColor}" />
+                               HorizontalOptions="Center" />
                     </StackLayout>
 
-                    <!-- Прогресс трека -->
                     <StackLayout Spacing="5">
                         <Slider x:Name="PositionSlider"
                                 Minimum="0"
@@ -122,7 +102,6 @@
                         </StackLayout>
                     </StackLayout>
 
-                    <!-- Громкость -->
                     <StackLayout Spacing="5" Orientation="Horizontal">
                         <Image Source="volume_low.png" HeightRequest="20" />
                         <Slider x:Name="VolumeSlider"
@@ -135,45 +114,46 @@
                 </StackLayout>
             </Frame>
 
-            <!-- Управление -->
-            <Frame Grid.Row="2" Margin="20,0,20,20" Padding="15">
+            <Frame x:Name="ControlsFrame" Grid.Row="2" Margin="20,0,20,20" Padding="15">
                 <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="10">
-                    <!-- Кнопка повтора -->
                     <ImageButton x:Name="RepeatButton" 
-                         Grid.Column="0" 
-                         Source="repeat_icon.png"/>
+                               Grid.Column="0" 
+                               Source="repeat_icon.png"
+                               Clicked="RepeatButton_Clicked"/>
 
-                    <!-- Предыдущий трек -->
                     <ImageButton x:Name="PrevButton" 
-                         Grid.Column="1" 
-                         Source="previous_icon.png"/>
+                               Grid.Column="1" 
+                               Source="previous_icon.png"
+                               Clicked="NextPrevButton_Clicked"/>
 
-                    <!-- Play/Pause -->
-                    <Frame Grid.Column="2" 
-                   BackgroundColor="{DynamicResource PrimaryColor}"
-                   CornerRadius="35"
-                   HeightRequest="70"
-                   WidthRequest="70"
-                   Padding="0"
-                   HorizontalOptions="Center">
+                    <Frame x:Name="PlayPauseFrame" 
+                         Grid.Column="2" 
+                         BackgroundColor="{DynamicResource PrimaryColor}"
+                         CornerRadius="35"
+                         HeightRequest="70"
+                         WidthRequest="70"
+                         Padding="0"
+                         HorizontalOptions="Center">
                         <Grid>
                             <ImageButton x:Name="PlayButton" 
-                                 Source="play_icon_white.png"/>
+                                       Source="play_icon_white.png"
+                                       Clicked="PlayPauseButton_Clicked"/>
                             <ImageButton x:Name="PauseButton" 
-                                 Source="pause_icon_white.png"
-                                 IsVisible="False" />
+                                       Source="pause_icon_white.png"
+                                       IsVisible="False"
+                                       Clicked="PlayPauseButton_Clicked"/>
                         </Grid>
                     </Frame>
 
-                    <!-- Следующий трек -->
                     <ImageButton x:Name="NextButton" 
-                         Grid.Column="3" 
-                         Source="next_icon.png"/>
+                               Grid.Column="3" 
+                               Source="next_icon.png"
+                               Clicked="NextPrevButton_Clicked"/>
 
-                    <!-- Кнопка избранного -->
                     <ImageButton x:Name="FavoriteButton" 
-                         Grid.Column="4" 
-                         Source="favorite_icon.png"/>
+                               Grid.Column="4" 
+                               Source="favorite_icon.png"
+                               Clicked="FavoriteButton_Clicked"/>
                 </Grid>
             </Frame>
         </Grid>

@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                    x:Class="MusicPlayerVS.Resources.Themes.LightTheme">
-
-    <Color x:Key="PrimaryColor">#4A6FA5</Color>
-    <Color x:Key="SecondaryColor">#6B8CBE</Color>
-    <Color x:Key="BackgroundColor">#F5F5F5</Color>
-    <Color x:Key="TextColor">#333333</Color>
-    <Color x:Key="CardColor">#FFFFFF</Color>
-    <Color x:Key="SliderThumbColor">#4A6FA5</Color>
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   x:Class="MusicPlayerVS.Resources.Themes.LightTheme">
+    <Color x:Key="PrimaryColor">#6200EE</Color>
+    <Color x:Key="SecondaryColor">#03DAC6</Color>
+    <Color x:Key="BackgroundColor">#FFFFFF</Color>
+    <Color x:Key="TextColor">#000000</Color>
+    <Color x:Key="CardColor">#F5F5F5</Color>
     <Color x:Key="SliderTrackColor">#E0E0E0</Color>
-
+    <Color x:Key="SliderThumbColor">#6200EE</Color>
 </ResourceDictionary>

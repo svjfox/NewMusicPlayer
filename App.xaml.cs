@@ -1,36 +1,45 @@
-﻿namespace MusicPlayerVS
+﻿using Microsoft.Maui.Controls;
+using MusicPlayerVS.Resources.Themes;
+
+namespace MusicPlayerVS
 {
     public partial class App : Application
     {
-        private readonly ResourceDictionary _lightTheme;
-        private readonly ResourceDictionary _darkTheme;
-
         public App()
         {
             InitializeComponent();
 
-            // Сохраняем ссылки на темы
-            _lightTheme = new MusicPlayerVS.Resources.Themes.LightTheme();
-            _darkTheme = new MusicPlayerVS.Resources.Themes.DarkTheme();
-
-            // Устанавливаем тему по умолчанию
-            ApplyLightTheme();
+            // Загружаем сохраненную тему, по умолчанию светлая
+            var isDark = Preferences.Get("IsDarkTheme", false); // Установлено false для светлой темы по умолчанию
+            ApplyTheme(isDark);
 
             MainPage = new NavigationPage(new MainPage());
         }
 
-        public void ApplyLightTheme()
+        public static void ApplyTheme(bool isDark)
         {
-            Resources.MergedDictionaries.Clear();
-            Resources.MergedDictionaries.Add(_lightTheme);
-            Current.UserAppTheme = AppTheme.Light;
-        }
+            // Удаляем только ранее добавленные словари тем
+            var themeDictionaries = Current.Resources.MergedDictionaries
+                .Where(d => d.GetType() == typeof(DarkTheme) || d.GetType() == typeof(LightTheme))
+                .ToList();
 
-        public void ApplyDarkTheme()
-        {
-            Resources.MergedDictionaries.Clear();
-            Resources.MergedDictionaries.Add(_darkTheme);
-            Current.UserAppTheme = AppTheme.Dark;
+            foreach (var themeDictionary in themeDictionaries)
+            {
+                Current.Resources.MergedDictionaries.Remove(themeDictionary);
+            }
+
+            // Добавляем новый словарь тем
+            if (isDark)
+            {
+                Current.Resources.MergedDictionaries.Add(new DarkTheme());
+            }
+            else
+            {
+                Current.Resources.MergedDictionaries.Add(new LightTheme());
+            }
+
+            // Сохраняем выбранную тему
+            Preferences.Set("IsDarkTheme", isDark);
         }
     }
 }
